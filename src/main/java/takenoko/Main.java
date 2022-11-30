@@ -1,4 +1,4 @@
-package fr.cotedazur.univ.polytech.startingpoint;
+package takenoko;
 
 public class Main {
 
