@@ -3,12 +3,9 @@ package takenoko;
 @SuppressWarnings("java:S119") // Why couldn't I name my template SELF?
 public abstract class PlayerBase<SELF extends PlayerBase<SELF> & PlayerBase.PlayerBaseInterface>
         implements Player {
-    public static interface PlayerBaseInterface {
-        Action chooseActionImpl(Board board);
-    }
-
     private final SELF self;
     private int actionCredits = 0;
+    private final int inventory = 0;
 
     @SuppressWarnings("unchecked")
     public PlayerBase() {
@@ -36,5 +33,15 @@ public abstract class PlayerBase<SELF extends PlayerBase<SELF> & PlayerBase.Play
 
     public boolean wantsToEndTurn() {
         return availableActionCredits() == 0;
+    }
+
+    // the inventory contains only irrigation for now
+    // NOTE FOR LATER : Inventory should become a class with irrigations, power-ups, and objectives
+    public int getInventory() {
+        return inventory;
+    }
+
+    public interface PlayerBaseInterface {
+        Action chooseActionImpl(Board board);
     }
 }

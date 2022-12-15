@@ -8,4 +8,6 @@ public interface Player {
     Action chooseAction(Board board);
 
     boolean wantsToEndTurn();
+
+    int getInventory();
 }
