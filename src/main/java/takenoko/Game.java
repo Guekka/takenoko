@@ -13,6 +13,8 @@ public class Game {
     private final Logger out;
     private int numTurn = 1;
 
+    private int irrigationStickLeft = 20;
+
     public Game(List<Player> players, Logger out) {
         board = new Board();
         this.players = players;
@@ -44,7 +46,7 @@ public class Game {
                         Level.INFO,
                         "Player number " + numPlayer + " do his action number " + numAction + ":");
                 var action = player.chooseAction(board);
-                playAction(action);
+                playAction(action, player);
                 numAction++;
             }
             numPlayer++;
@@ -56,7 +58,7 @@ public class Game {
     // S1301: we want pattern matching so switch is necessary
     // S1481: pattern matching requires variable name even if unused
     @SuppressWarnings({"java:S1301", "java:S1481"})
-    private void playAction(Action action) {
+    private void playAction(Action action, Player player) {
         switch (action) {
             case Action.None ignored -> {
                 // do nothing
@@ -68,7 +70,23 @@ public class Game {
                     System.out.println(e.getMessage());
                 }
             }
+            case Action.TakeIrrigationStick takeIrrigationStick -> {
+                try {
+                    takeIrrigationStick(player);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+            }
             default -> throw new IllegalStateException("Unexpected value: " + action);
         }
+    }
+
+    // take an irrigation stick from the stack and put it in the player's inventory
+    private void takeIrrigationStick(Player player) throws Exception {
+        if (irrigationStickLeft == 0) {
+            throw new Exception("No more irrigation stick left");
+        }
+        player.takeIrrigationStick();
+        irrigationStickLeft--;
     }
 }

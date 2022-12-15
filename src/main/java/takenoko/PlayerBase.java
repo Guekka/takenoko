@@ -4,8 +4,10 @@ package takenoko;
 public abstract class PlayerBase<SELF extends PlayerBase<SELF> & PlayerBase.PlayerBaseInterface>
         implements Player {
     private final SELF self;
+
+    // TODO : Inventory should become a class with irrigations, power-ups, and objectives
+    private int inventory = 0;
     private int actionCredits = 0;
-    private final int inventory = 0;
 
     @SuppressWarnings("unchecked")
     public PlayerBase() {
@@ -35,10 +37,12 @@ public abstract class PlayerBase<SELF extends PlayerBase<SELF> & PlayerBase.Play
         return availableActionCredits() == 0;
     }
 
-    // the inventory contains only irrigation for now
-    // NOTE FOR LATER : Inventory should become a class with irrigations, power-ups, and objectives
     public int getInventory() {
         return inventory;
+    }
+
+    public void takeIrrigationStick() {
+        inventory++;
     }
 
     public interface PlayerBaseInterface {

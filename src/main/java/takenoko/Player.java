@@ -10,4 +10,6 @@ public interface Player {
     boolean wantsToEndTurn();
 
     int getInventory();
+
+    void takeIrrigationStick();
 }
