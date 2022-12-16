@@ -25,7 +25,7 @@ public class Board {
         }
         tiles.put(c, t);
 
-        for (TileSides side : TileSides.values()) {
+        for (TileSide side : TileSide.values()) {
             Coord adjacentCoord = c.adjacentCoordSide(side);
             if (tiles.containsKey(adjacentCoord)) {
                 if (tiles.get(adjacentCoord).isSideIrrigated(side.oppositeSide())) {
@@ -35,7 +35,7 @@ public class Board {
         }
     }
 
-    public void placeIrrigation(Coord coord, TileSides side) {
+    public void placeIrrigation(Coord coord, TileSide side) {
         try {
             tiles.get(coord).irrigateSide(side);
             tiles.get(coord.adjacentCoordSide(side)).irrigateSide(side.oppositeSide());

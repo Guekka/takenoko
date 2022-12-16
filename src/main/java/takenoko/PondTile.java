@@ -2,11 +2,11 @@ package takenoko;
 
 public class PondTile implements Tile {
 
-    public boolean isSideIrrigated(TileSides side) {
+    public boolean isSideIrrigated(TileSide side) {
         return true;
     }
 
-    public void irrigateSide(TileSides side) throws Exception {
+    public void irrigateSide(TileSide side) throws Exception {
         throw new Exception("Cannot irrigate a pond");
     }
 

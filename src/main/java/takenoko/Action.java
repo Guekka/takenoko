@@ -67,7 +67,7 @@ public sealed interface Action
         }
     }
 
-    record PlaceIrrigationStick(Coord coord, TileSides side, Player player) implements Action {
+    record PlaceIrrigationStick(Coord coord, TileSide side, Player player) implements Action {
         @Override
         public int cost() {
             return 0;

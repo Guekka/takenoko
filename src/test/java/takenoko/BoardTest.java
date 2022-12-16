@@ -23,4 +23,16 @@ public class BoardTest {
         tileboard.placeTile(c2, t);
         assertEquals(tileboard.getTile(c2), t);
     }
+
+    @Test
+    void placeIrrigationTest() throws Exception {
+        Coord c = new Coord(1, 2);
+        Coord c2 = new Coord(0, 1);
+        Tile t = new BambooTile();
+        tileboard.placeTile(c2, t);
+        assertThrows(BoardException.class, () -> tileboard.placeIrrigation(c, TileSide.UP));
+        assertThrows(BoardException.class, () -> tileboard.placeIrrigation(c2, TileSide.UP));
+        tileboard.placeIrrigation(c2, TileSide.UP_LEFT);
+        assertTrue(tileboard.getTile(c2).isSideIrrigated(TileSide.UP_LEFT));
+    }
 }

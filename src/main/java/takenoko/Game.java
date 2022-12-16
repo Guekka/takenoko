@@ -99,7 +99,7 @@ public class Game {
         irrigationStickLeft--;
     }
 
-    private void placeIrrigationStick(Player player, Coord coord, TileSides side) throws Exception {
+    private void placeIrrigationStick(Player player, Coord coord, TileSide side) throws Exception {
         if (player.getInventory() <= 0) {
             throw new Exception("No more irrigation stick left in player's inventory");
         }

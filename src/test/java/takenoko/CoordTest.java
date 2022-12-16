@@ -52,4 +52,9 @@ public class CoordTest {
         assertTrue(coordx1y2.isAdjacentTo(coordx2y2));
         assertFalse(coordx1y2.isAdjacentTo(coordx3y2));
     }
+
+    @Test
+    void adjacentCoordSideTest() {
+        assertEquals(coordx2y2, coordx1y2.adjacentCoordSide(TileSide.UP));
+    }
 }

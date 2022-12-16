@@ -3,7 +3,7 @@ package takenoko;
 public interface Tile {
     boolean isCultivable();
 
-    boolean isSideIrrigated(TileSides side);
+    boolean isSideIrrigated(TileSide side);
 
-    void irrigateSide(TileSides side) throws Exception;
+    void irrigateSide(TileSide side) throws Exception;
 }

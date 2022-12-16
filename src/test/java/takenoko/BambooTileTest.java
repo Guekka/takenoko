@@ -17,4 +17,10 @@ public class BambooTileTest {
     void isCultivableTest() {
         assertTrue(bambooTile.isCultivable());
     }
+
+    @Test
+    void irrigateSideTest() throws Exception {
+        bambooTile.irrigateSide(TileSide.UP);
+        assertTrue(bambooTile.isSideIrrigated(TileSide.UP));
+    }
 }

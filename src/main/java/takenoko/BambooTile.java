@@ -5,11 +5,11 @@ import java.util.Map;
 
 public class BambooTile implements Tile {
 
-    private Map<TileSides, Boolean> irrigatedSides;
+    private Map<TileSide, Boolean> irrigatedSides;
 
     public BambooTile() {
         irrigatedSides = new HashMap<>();
-        for (TileSides side : TileSides.values()) {
+        for (TileSide side : TileSide.values()) {
             irrigatedSides.put(side, false);
         }
     }
@@ -19,7 +19,7 @@ public class BambooTile implements Tile {
         return true;
     }
 
-    public void irrigateSide(TileSides side) {
+    public void irrigateSide(TileSide side) {
         irrigatedSides.put(side, true);
     }
 
@@ -27,7 +27,7 @@ public class BambooTile implements Tile {
         return irrigatedSides.values().stream().allMatch(Boolean::booleanValue);
     }
 
-    public boolean isSideIrrigable(TileSides side) throws Exception {
+    public boolean isSideIrrigable(TileSide side) throws Exception {
         if (isSideIrrigated(side)) {
             throw new Exception("Error: this side is already irrigated.");
         }
@@ -35,7 +35,7 @@ public class BambooTile implements Tile {
     }
 
     @Override
-    public boolean isSideIrrigated(TileSides side) {
+    public boolean isSideIrrigated(TileSide side) {
         return irrigatedSides.get(side);
     }
 

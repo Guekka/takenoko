@@ -30,7 +30,7 @@ public record Coord(int x, int y) {
         return Arrays.asList(adjacentCoords()).contains(c);
     }
 
-    public Coord adjacentCoordSide(TileSides side) {
+    public Coord adjacentCoordSide(TileSide side) {
         return adjacentCoords()[side.ordinal()];
     }
 }
