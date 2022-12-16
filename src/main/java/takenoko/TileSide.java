@@ -13,7 +13,7 @@ public enum TileSide {
     }
 
     public TileSide leftSide() {
-        return values()[(ordinal() + 1) % values().length];
+        return values()[(ordinal() + 5) % values().length];
     }
 
     public TileSide oppositeSide() {

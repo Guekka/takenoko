@@ -17,12 +17,12 @@ public record Coord(int x, int y) {
 
     public Coord[] adjacentCoords() {
         Coord[] adjacentCoords = new Coord[6];
-        adjacentCoords[0] = new Coord(x, y + 1);
-        adjacentCoords[1] = new Coord(x + 1, y);
-        adjacentCoords[2] = new Coord(x + 1, y - 1);
-        adjacentCoords[3] = new Coord(x, y - 1);
-        adjacentCoords[4] = new Coord(x - 1, y);
-        adjacentCoords[5] = new Coord(x - 1, y + 1);
+        adjacentCoords[0] = new Coord(x, y - 1);
+        adjacentCoords[1] = new Coord(x + 1, y - 1);
+        adjacentCoords[2] = new Coord(x + 1, y);
+        adjacentCoords[3] = new Coord(x, y + 1);
+        adjacentCoords[4] = new Coord(x - 1, y + 1);
+        adjacentCoords[5] = new Coord(x - 1, y);
         return adjacentCoords;
     }
 
