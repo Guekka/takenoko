@@ -6,8 +6,8 @@ public class PondTile implements Tile {
         return true;
     }
 
-    public void irrigateSide(TileSide side) throws Exception {
-        throw new Exception("Cannot irrigate a pond");
+    public void irrigateSide(TileSide side) throws BoardException {
+        throw new BoardException("Cannot irrigate a pond");
     }
 
     @Override

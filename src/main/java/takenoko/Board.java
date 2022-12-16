@@ -15,7 +15,7 @@ public class Board {
         tiles.put(POND_COORD, new PondTile());
     }
 
-    public void placeTile(Coord c, Tile t) throws Exception {
+    public void placeTile(Coord c, Tile t) throws BoardException {
         if (!c.isAdjacentTo(POND_COORD)) {
             throw new BoardException("Error: non-adjacent tile.");
         }

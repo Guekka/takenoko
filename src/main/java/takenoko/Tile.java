@@ -5,5 +5,5 @@ public interface Tile {
 
     boolean isSideIrrigated(TileSide side);
 
-    void irrigateSide(TileSide side) throws Exception;
+    void irrigateSide(TileSide side) throws BoardException;
 }

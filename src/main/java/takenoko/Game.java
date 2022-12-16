@@ -91,9 +91,9 @@ public class Game {
     }
 
     // take an irrigation stick from the stack and put it in the player's inventory
-    private void takeIrrigationStick(Player player) throws Exception {
+    private void takeIrrigationStick(Player player) throws BoardException {
         if (irrigationStickLeft == 0) {
-            throw new Exception("No more irrigation stick left");
+            throw new BoardException("No more irrigation stick left");
         }
         player.takeIrrigationStick();
         irrigationStickLeft--;

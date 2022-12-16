@@ -29,7 +29,7 @@ public class BambooTile implements Tile {
 
     public boolean isSideIrrigable(TileSide side) throws Exception {
         if (isSideIrrigated(side)) {
-            throw new Exception("Error: this side is already irrigated.");
+            return false;
         }
         return irrigatedSides.get(side.leftSide()) || irrigatedSides.get(side.rightSide());
     }
