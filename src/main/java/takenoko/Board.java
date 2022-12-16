@@ -15,7 +15,7 @@ public class Board {
         tiles.put(POND_COORD, new PondTile());
     }
 
-    public void placeTile(Coord c, Tile t) throws BoardException {
+    public void placeTile(Coord c, Tile t) throws Exception {
         if (!c.isAdjacentTo(POND_COORD)) {
             throw new BoardException("Error: non-adjacent tile.");
         }
@@ -24,6 +24,24 @@ public class Board {
                     "Error: There is already a tile present at theses coordinates.");
         }
         tiles.put(c, t);
+
+        for (TileSides side : TileSides.values()) {
+            Coord adjacentCoord = c.adjacentCoordSide(side);
+            if (tiles.containsKey(adjacentCoord)) {
+                if (tiles.get(adjacentCoord).isSideIrrigated(side.oppositeSide())) {
+                    t.irrigateSide(side);
+                }
+            }
+        }
+    }
+
+    public void placeIrrigation(Coord coord, TileSides side) {
+        try {
+            tiles.get(coord).irrigateSide(side);
+            tiles.get(coord.adjacentCoordSide(side)).irrigateSide(side.oppositeSide());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public Tile getTile(Coord c) throws BoardException {

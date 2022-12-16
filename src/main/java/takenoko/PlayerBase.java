@@ -45,6 +45,10 @@ public abstract class PlayerBase<SELF extends PlayerBase<SELF> & PlayerBase.Play
         inventory++;
     }
 
+    public void placeIrrigationStick() {
+        inventory--;
+    }
+
     public interface PlayerBaseInterface {
         Action chooseActionImpl(Board board);
     }

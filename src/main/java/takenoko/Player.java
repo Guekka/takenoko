@@ -12,4 +12,6 @@ public interface Player {
     int getInventory();
 
     void takeIrrigationStick();
+
+    void placeIrrigationStick();
 }

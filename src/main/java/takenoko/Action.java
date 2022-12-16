@@ -2,7 +2,11 @@ package takenoko;
 
 import java.util.Objects;
 
-public sealed interface Action permits Action.None, Action.PlaceTile, Action.TakeIrrigationStick {
+public sealed interface Action
+        permits Action.None,
+                Action.PlaceIrrigationStick,
+                Action.PlaceTile,
+                Action.TakeIrrigationStick {
     Action NONE = new Action.None();
 
     int cost();
@@ -11,6 +15,16 @@ public sealed interface Action permits Action.None, Action.PlaceTile, Action.Tak
         @Override
         public int cost() {
             return 1;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof None;
+        }
+
+        @Override
+        public int hashCode() {
+            return 0;
         }
     }
 
@@ -50,6 +64,28 @@ public sealed interface Action permits Action.None, Action.PlaceTile, Action.Tak
         @Override
         public int hashCode() {
             return 0;
+        }
+    }
+
+    record PlaceIrrigationStick(Coord coord, TileSides side, Player player) implements Action {
+        @Override
+        public int cost() {
+            return 0;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof PlaceIrrigationStick other) {
+                return coord.equals(other.coord)
+                        && side.equals(other.side)
+                        && player.equals(other.player);
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(coord, side, player);
         }
     }
 }

@@ -77,6 +77,15 @@ public class Game {
                     System.out.println(e.getMessage());
                 }
             }
+            case Action.PlaceIrrigationStick placeIrrigationStick -> {
+                try {
+                    board.placeIrrigation(
+                            placeIrrigationStick.coord(), placeIrrigationStick.side());
+
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+            }
             default -> throw new IllegalStateException("Unexpected value: " + action);
         }
     }
@@ -88,5 +97,13 @@ public class Game {
         }
         player.takeIrrigationStick();
         irrigationStickLeft--;
+    }
+
+    private void placeIrrigationStick(Player player, Coord coord, TileSides side) throws Exception {
+        if (player.getInventory() <= 0) {
+            throw new Exception("No more irrigation stick left in player's inventory");
+        }
+        board.placeIrrigation(coord, side);
+        player.placeIrrigationStick();
     }
 }

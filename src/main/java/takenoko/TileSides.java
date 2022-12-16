@@ -15,4 +15,8 @@ public enum TileSides {
     public TileSides leftSide() {
         return values()[(ordinal() + 1) % values().length];
     }
+
+    public TileSides oppositeSide() {
+        return values()[(ordinal() + 3) % values().length];
+    }
 }

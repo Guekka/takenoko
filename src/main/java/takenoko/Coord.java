@@ -29,4 +29,8 @@ public record Coord(int x, int y) {
     public boolean isAdjacentTo(Coord c) {
         return Arrays.asList(adjacentCoords()).contains(c);
     }
+
+    public Coord adjacentCoordSide(TileSides side) {
+        return adjacentCoords()[side.ordinal()];
+    }
 }

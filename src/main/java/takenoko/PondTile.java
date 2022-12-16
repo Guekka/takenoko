@@ -6,6 +6,10 @@ public class PondTile implements Tile {
         return true;
     }
 
+    public void irrigateSide(TileSides side) throws Exception {
+        throw new Exception("Cannot irrigate a pond");
+    }
+
     @Override
     public boolean isCultivable() {
         return false;
