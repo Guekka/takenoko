@@ -24,7 +24,7 @@ public class BambooTile implements Tile {
     }
 
     public boolean isIrrigated() {
-        return irrigatedSides.values().stream().allMatch(Boolean::booleanValue);
+        return irrigatedSides.values().stream().anyMatch(Boolean::booleanValue);
     }
 
     public boolean isSideIrrigable(TileSide side) throws Exception {
