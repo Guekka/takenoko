@@ -74,7 +74,7 @@ public class Game {
                 try {
                     takeIrrigationStick(player);
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    this.out.log(Level.INFO, e.getMessage());
                 }
             }
             case Action.PlaceIrrigationStick placeIrrigationStick -> {
@@ -83,7 +83,7 @@ public class Game {
                             placeIrrigationStick.coord(), placeIrrigationStick.side());
 
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    this.out.log(Level.INFO, e.getMessage());
                 }
             }
             default -> throw new IllegalStateException("Unexpected value: " + action);
