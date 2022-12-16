@@ -25,7 +25,7 @@ public class BoardTest {
     }
 
     @Test
-    void placeIrrigationTest() throws Exception {
+    void placeIrrigationTest() throws BoardException {
         Coord c = new Coord(1, 2);
         Coord c2 = new Coord(0, 1);
         Tile t = new BambooTile();
