@@ -3,5 +3,5 @@ package takenoko;
 public interface Tile {
     boolean isCultivable();
 
-    boolean isSideIrrigated(int side);
+    boolean isSideIrrigated(TileSides side);
 }

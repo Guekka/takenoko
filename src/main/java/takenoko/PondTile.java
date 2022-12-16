@@ -1,13 +1,8 @@
 package takenoko;
 
 public class PondTile implements Tile {
-    private Boolean[] irrigatedSides;
 
-    public void BambooTile() {
-        Boolean[] irrigatedSides = {true, true, true, true, true, true};
-    }
-
-    public boolean isSideIrrigated(int side) {
+    public boolean isSideIrrigated(TileSides side) {
         return true;
     }
 

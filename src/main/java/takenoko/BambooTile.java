@@ -1,13 +1,17 @@
 package takenoko;
 
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BambooTile implements Tile {
 
-    private final Boolean[] irrigatedSides;
+    private Map<TileSides, Boolean> irrigatedSides;
 
     public BambooTile() {
-        irrigatedSides = new Boolean[6];
+        irrigatedSides = new HashMap<>();
+        for (TileSides side : TileSides.values()) {
+            irrigatedSides.put(side, false);
+        }
     }
 
     @Override
@@ -15,16 +19,24 @@ public class BambooTile implements Tile {
         return true;
     }
 
-    public void irrigateSide(int side) {
-        irrigatedSides[side] = true;
+    public void irrigateSide(TileSides side) {
+        irrigatedSides.put(side, true);
     }
 
     public boolean isIrrigated() {
-        return Arrays.stream(irrigatedSides).anyMatch(b -> b);
+        return irrigatedSides.values().stream().allMatch(Boolean::booleanValue);
     }
 
-    public boolean isSideIrrigated(int side) {
-        return irrigatedSides[side];
+    public boolean isSideIrrigable(TileSides side) {
+        if (isSideIrrigated(side)) {
+            return false;
+        }
+        return irrigatedSides.get(side.leftSide()) || irrigatedSides.get(side.rightSide());
+    }
+
+    @Override
+    public boolean isSideIrrigated(TileSides side) {
+        return irrigatedSides.get(side);
     }
 
     @Override
