@@ -30,7 +30,7 @@ public sealed interface Action
         }
     }
 
-    record PlaceTile(Coord coord, Tile tile) implements Action {
+    record PlaceTile(Coord coord, TileDeck.DrawTilePredicate drawTilePredicate) implements Action {
         @Override
         public int cost() {
             return 1;
@@ -39,14 +39,15 @@ public sealed interface Action
         @Override
         public boolean equals(Object o) {
             if (o instanceof PlaceTile other) {
-                return coord.equals(other.coord) && tile.equals(other.tile);
+                return coord.equals(other.coord)
+                        && drawTilePredicate.equals(other.drawTilePredicate);
             }
             return false;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(coord, tile);
+            return Objects.hash(coord, drawTilePredicate);
         }
     }
 
