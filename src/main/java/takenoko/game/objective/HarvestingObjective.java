@@ -18,6 +18,11 @@ public class HarvestingObjective implements Objective {
         this.needs.put(Color.PINK, pink);
     }
 
+    public HarvestingObjective(HarvestingObjective other) {
+        needs = new EnumMap<>(other.needs);
+        achieved = other.achieved;
+    }
+
     public boolean isAchieved(Board ignoredB, Action ignoredA, Inventory inventory) {
         achieved =
                 Arrays.stream(Color.values())

@@ -47,6 +47,12 @@ public class TilePatternObjective implements Objective {
                         .collect(Collectors.toSet());
     }
 
+    public TilePatternObjective(TilePatternObjective other) {
+        patternRotations = other.patternRotations;
+        achieved = other.achieved;
+        color = other.color;
+    }
+
     /// Generate all possible rotations of a pattern
     private List<List<Coord>> generateRotations(List<Coord> pattern) {
         var rotations = new ArrayList<List<Coord>>();

@@ -1,6 +1,7 @@
 package takenoko.game.tile;
 
 public class PondTile implements Tile {
+
     @Override
     public boolean isCultivable() {
         return false;

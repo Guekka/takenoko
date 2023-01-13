@@ -47,6 +47,17 @@ public class TileDeck {
         this.tiles = tiles;
     }
 
+    public TileDeck(TileDeck other) {
+        tiles = new ArrayDeque<>();
+        for (Tile tile : other.tiles) {
+            if (tile instanceof BambooTile bambooTile) {
+                tiles.add(new BambooTile(bambooTile));
+            } else {
+                tiles.add(tile);
+            }
+        }
+    }
+
     public Tile draw(DrawTilePredicate predicate) throws EmptyTileDeckException {
         if (tiles.isEmpty()) {
             throw new EmptyTileDeckException("Tile deck is empty.");

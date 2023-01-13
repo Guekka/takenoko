@@ -30,6 +30,11 @@ public class BambooSizeObjective implements Objective {
         this.color = c;
     }
 
+    public BambooSizeObjective(BambooSizeObjective other) {
+        sizeObjective = other.sizeObjective;
+        achieved = other.achieved;
+    }
+
     @Override
     public boolean isAchieved(Board board, Action lastAction, Inventory ignored) {
         int nbOfBamboos = numberOfBamboos;

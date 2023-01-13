@@ -33,6 +33,7 @@ class GameTest {
         tileDeck = new TileDeck(new Random(0));
 
         logger = Logger.getGlobal();
+        logger.setUseParentHandlers(false);
         logHandler = new TestLogHandler();
         logger.addHandler(logHandler);
     }

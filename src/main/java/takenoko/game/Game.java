@@ -10,7 +10,10 @@ import takenoko.action.ActionApplier;
 import takenoko.action.ActionValidator;
 import takenoko.action.PossibleActionLister;
 import takenoko.game.board.Board;
+import takenoko.game.objective.BambooSizeObjective;
+import takenoko.game.objective.HarvestingObjective;
 import takenoko.game.objective.Objective;
+import takenoko.game.objective.TilePatternObjective;
 import takenoko.game.tile.TileDeck;
 import takenoko.player.Inventory;
 import takenoko.player.InventoryException;
@@ -26,10 +29,8 @@ public class Game {
     private int numTurn = 1;
     private final GameInventory inventory;
     private final TileDeck tileDeck;
-    private boolean isOver;
 
     public Game(List<Player> players, List<Objective> objectives, Logger out, TileDeck tileDeck) {
-        isOver = false;
         board = new Board();
         this.players = players;
         this.objectives = objectives;
@@ -47,14 +48,22 @@ public class Game {
     }
 
     public Game(Game game) {
-        isOver = game.isOver;
-        board = game.board; // TODO : IMPLEMENT COPY CONSTRUCTOR
-        players = game.players; // TODO : IMPLEMENT COPY CONSTRUCTOR
-        out = game.out; // TODO : IMPLEMENT COPY CONSTRUCTOR
-        objectives = game.objectives; // TODO : IMPLEMENT COPY CONSTRUCTOR
+        board = new Board(game.board);
+        players = new ArrayList<>(game.players);
+        out = game.out;
+        objectives = new ArrayList<>();
+        for (var objective : game.objectives) {
+            if (objective instanceof BambooSizeObjective bambooSizeObjective) {
+                objectives.add(new BambooSizeObjective(bambooSizeObjective));
+            } else if (objective instanceof TilePatternObjective tilePatternObjective) {
+                objectives.add(new TilePatternObjective(tilePatternObjective));
+            } else if (objective instanceof HarvestingObjective harvestingObjective) {
+                objectives.add(new HarvestingObjective(harvestingObjective));
+            }
+        }
         numTurn = game.numTurn;
-        inventory = game.inventory; // TODO : IMPLEMENT COPY CONSTRUCTOR
-        tileDeck = game.tileDeck; // TODO : IMPLEMENT COPY CONSTRUCTOR
+        inventory = new GameInventory(game.inventory);
+        tileDeck = new TileDeck(game.tileDeck);
     }
 
     public Optional<Player> play() {
@@ -65,7 +74,6 @@ public class Game {
             numTurn++;
         }
         this.out.log(Level.INFO, "End of the game!");
-        isOver = true;
         return getWinner();
     }
 
@@ -95,8 +103,10 @@ public class Game {
                     if (action == Action.END_TURN) break;
                     var applier = new ActionApplier(board, out, inventory, tileDeck);
                     applier.apply(action, player);
+                    this.out.log(Level.INFO, "Action applied!");
                     alreadyPlayedActions.add(action);
                     checkObjectives(action, player.getInventory());
+                    this.out.log(Level.INFO, "Objectives checked!");
                 } catch (PlayerException e) {
                     this.out.log(Level.SEVERE, "Player exception: {0}", e.getMessage());
                 }
@@ -120,9 +130,5 @@ public class Game {
         for (Objective objective : objectives) {
             objective.isAchieved(board, lastAction, inventory);
         }
-    }
-
-    public boolean isOver() {
-        return isOver;
     }
 }

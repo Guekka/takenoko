@@ -19,6 +19,19 @@ public class Board {
         tiles.put(POND_COORD, new PondTile());
     }
 
+    public Board(Board other) {
+        tiles = new HashMap<>(other.tiles);
+        for (var entry : other.tiles.entrySet()) {
+            if (entry.getValue() instanceof PondTile) {
+                tiles.put(entry.getKey(), new PondTile());
+            } else {
+                tiles.put(entry.getKey(), new BambooTile((BambooTile) entry.getValue()));
+            }
+        }
+        gardener = Pair.of(other.gardener.first(), other.gardener.second());
+        panda = Pair.of(other.panda.first(), other.panda.second());
+    }
+
     public void placeTile(Coord c, Tile t) throws BoardException, IrrigationException {
         if (!isAvailableCoord(c)) {
             throw new BoardException("Coord " + c + " is not available");

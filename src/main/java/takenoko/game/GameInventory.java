@@ -7,6 +7,10 @@ public class GameInventory {
         this.irrigationSticks = irrigationSticks;
     }
 
+    public GameInventory(GameInventory gameInventory) {
+        this.irrigationSticks = gameInventory.irrigationSticks;
+    }
+
     public void incrementIrrigation() {
         irrigationSticks++;
     }
