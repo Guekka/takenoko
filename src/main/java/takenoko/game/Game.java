@@ -26,8 +26,10 @@ public class Game {
     private int numTurn = 1;
     private final GameInventory inventory;
     private final TileDeck tileDeck;
+    private boolean isOver;
 
     public Game(List<Player> players, List<Objective> objectives, Logger out, TileDeck tileDeck) {
+        isOver = false;
         board = new Board();
         this.players = players;
         this.objectives = objectives;
@@ -44,6 +46,17 @@ public class Game {
         inventory = new GameInventory(20);
     }
 
+    public Game(Game game) {
+        isOver = game.isOver;
+        board = game.board; // TODO : IMPLEMENT COPY CONSTRUCTOR
+        players = game.players; // TODO : IMPLEMENT COPY CONSTRUCTOR
+        out = game.out; // TODO : IMPLEMENT COPY CONSTRUCTOR
+        objectives = game.objectives; // TODO : IMPLEMENT COPY CONSTRUCTOR
+        numTurn = game.numTurn;
+        inventory = game.inventory; // TODO : IMPLEMENT COPY CONSTRUCTOR
+        tileDeck = game.tileDeck; // TODO : IMPLEMENT COPY CONSTRUCTOR
+    }
+
     public Optional<Player> play() {
         this.out.log(Level.INFO, "Beginning of the game!");
         while (numTurn < 200) {
@@ -51,6 +64,8 @@ public class Game {
             playTurn();
             numTurn++;
         }
+        this.out.log(Level.INFO, "End of the game!");
+        isOver = true;
         return getWinner();
     }
 
@@ -105,5 +120,9 @@ public class Game {
         for (Objective objective : objectives) {
             objective.isAchieved(board, lastAction, inventory);
         }
+    }
+
+    public boolean isOver() {
+        return isOver;
     }
 }
