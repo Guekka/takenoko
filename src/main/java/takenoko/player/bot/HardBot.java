@@ -4,22 +4,32 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import takenoko.action.Action;
-import takenoko.action.ActionValidator;
-import takenoko.game.board.Board;
+import takenoko.action.ActionApplier;
+import takenoko.action.PossibleActionLister;
+import takenoko.game.Game;
+import takenoko.game.GameState;
+import takenoko.game.tile.TileDeck;
 import takenoko.player.PlayerBase;
 import takenoko.utils.Utils;
 
 public class HardBot extends PlayerBase<HardBot> implements PlayerBase.PlayerBaseInterface {
     private final Random randomSource;
     private final int maxIterations;
+    private GameState gameState;
 
     public HardBot(Random randomSource, int maxIterations) {
         this.randomSource = randomSource;
         this.maxIterations = maxIterations;
     }
 
-    public Action chooseActionImpl(Board board, ActionValidator validator) {
+    public HardBot(HardBot other) {
+        this(other.randomSource, other.maxIterations);
+    }
+
+    public Action chooseActionImpl(GameState gameState, PossibleActionLister actionLister) {
         // If an objective is achieved, unveil it
         for (var obj : getInventory().getObjectives())
             if (obj.wasAchievedAfterLastCheck()) return new Action.UnveilObjective(obj);
@@ -27,7 +37,7 @@ public class HardBot extends PlayerBase<HardBot> implements PlayerBase.PlayerBas
         // if we do not have enough action credits, end the turn
         if (availableActionCredits() == 0) return Action.END_TURN;
 
-        Node root = new Node(board, validator);
+        Node root = new Node(gameState, actionLister, this);
         for (int i = 0; i < maxIterations; i++) {
             Node current = root;
             // Selection
@@ -51,39 +61,43 @@ public class HardBot extends PlayerBase<HardBot> implements PlayerBase.PlayerBas
 
     private class Node {
         private final Action action;
-        private final Board board;
-        private final ActionValidator validator;
+        private final GameState gameState;
         private final Node parent;
         private int visits;
         private int wins;
-        private List<Node> children;
+        private final List<Node> children;
+        private final PossibleActionLister actionLister;
+        private final HardBot player;
 
-        public Node(Board board, ActionValidator validator) {
-            this(null, board, validator, null);
+        public Node(GameState gameState, PossibleActionLister actionLister, HardBot player) {
+            this(null, gameState, actionLister, null, player);
         }
 
-        public Node(Action action, Board board, ActionValidator validator, Node parent) {
+        public Node(
+                Action action,
+                GameState gameState,
+                PossibleActionLister actionLister,
+                Node parent,
+                HardBot player) {
             this.action = action;
-            this.board = board;
-            this.validator = validator;
+            this.gameState = gameState;
             this.parent = parent;
+            this.player = new HardBot(player);
             this.visits = 0;
             this.wins = 0;
-            this.children = null;
+            this.children = new ArrayList<>();
+            this.actionLister = actionLister;
         }
 
         public boolean isLeaf() {
-            return children == null;
+            return children.isEmpty();
         }
 
         public boolean isTerminal() {
-            // check if the board is over
-            // return board.isOver();
-            return true;
+            return gameState.isOver(); // TODO : ADAPT IF SHORTER GAMES ARE IMPLEMENTED (DEPTH)
         }
 
         public Node getBestChild() {
-            // use the UCB1 formula to select the best child
             return children.stream()
                     .max(Comparator.comparingDouble(Node::getUCB1Value))
                     .orElseThrow();
@@ -95,33 +109,33 @@ public class HardBot extends PlayerBase<HardBot> implements PlayerBase.PlayerBas
 
         public Node expand() {
             if (isLeaf()) {
-                children = generateChildren();
+                generateChildren();
             }
             return Utils.randomPick(children, randomSource).orElseThrow();
         }
 
-        public List<Node> generateChildren() {
-            List<Node> children = new ArrayList<>();
-            List<Action> possibleActions = null; // TODO : GET ALL POSSIBLE ACTIONS
-            for (Action action : possibleActions) {
-                Board newBoard = new Board(board);
-                // TODO : APPLY ACTION TO THE GAME
-                Node child = new Node(action, newBoard, validator, this);
-                children.add(child);
+        public void generateChildren() {
+            for (var a : actionLister.getPossibleActions(TileDeck.DEFAULT_DRAW_TILE_PREDICATE)) {
+                GameState newGameState = gameState.copy();
+                Logger out = Logger.getGlobal();
+                out.setLevel(Level.OFF);
+                var applier =
+                        new ActionApplier(
+                                gameState.board(),
+                                out,
+                                gameState.inventory(),
+                                gameState.tileDeck());
+                applier.apply(a, player);
+                children.add(new Node(a, newGameState, actionLister, this, player));
             }
-            return children;
         }
 
         public int simulate() {
-            /*
-             Board simBoard = new Board(board);
-             while (!simBoard.isOver()) {
-                 List<Action> possibleActions = null; // TODO : APPLY ACTION TO THE GAME
-                 Action simAction = Utils.randomPick(possibleActions, randomSource).orElseThrow();
-                 // TODO : APPLY ACTION TO THE GAME
-             }
-            */
-            return 0; // TODO : return the score of the player
+            GameState newGameState = gameState.copy();
+            Game game = new Game(newGameState);
+            game.play();
+
+            return player.getScore();
         }
 
         public void update(int result) {

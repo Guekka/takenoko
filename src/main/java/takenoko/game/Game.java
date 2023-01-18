@@ -10,10 +10,7 @@ import takenoko.action.ActionApplier;
 import takenoko.action.ActionValidator;
 import takenoko.action.PossibleActionLister;
 import takenoko.game.board.Board;
-import takenoko.game.objective.BambooSizeObjective;
-import takenoko.game.objective.HarvestingObjective;
 import takenoko.game.objective.Objective;
-import takenoko.game.objective.TilePatternObjective;
 import takenoko.game.tile.TileDeck;
 import takenoko.player.Inventory;
 import takenoko.player.InventoryException;
@@ -29,8 +26,10 @@ public class Game {
     private int numTurn = 1;
     private final GameInventory inventory;
     private final TileDeck tileDeck;
+    private boolean isOver = false;
 
     public Game(List<Player> players, List<Objective> objectives, Logger out, TileDeck tileDeck) {
+        isOver = false;
         board = new Board();
         this.players = players;
         this.objectives = objectives;
@@ -47,23 +46,17 @@ public class Game {
         inventory = new GameInventory(20);
     }
 
-    public Game(Game game) {
-        board = new Board(game.board);
-        players = new ArrayList<>(game.players);
-        out = game.out;
-        objectives = new ArrayList<>();
-        for (var objective : game.objectives) {
-            if (objective instanceof BambooSizeObjective bambooSizeObjective) {
-                objectives.add(new BambooSizeObjective(bambooSizeObjective));
-            } else if (objective instanceof TilePatternObjective tilePatternObjective) {
-                objectives.add(new TilePatternObjective(tilePatternObjective));
-            } else if (objective instanceof HarvestingObjective harvestingObjective) {
-                objectives.add(new HarvestingObjective(harvestingObjective));
-            }
-        }
-        numTurn = game.numTurn;
-        inventory = new GameInventory(game.inventory);
-        tileDeck = new TileDeck(game.tileDeck);
+    public Game(GameState gameState) {
+        board = gameState.board();
+        players = gameState.players();
+        // Make an empty logger (won't log)
+        out = Logger.getGlobal();
+        out.setLevel(Level.OFF);
+        objectives = gameState.objectives();
+        numTurn = gameState.numTurn();
+        inventory = gameState.inventory();
+        tileDeck = gameState.tileDeck();
+        isOver = gameState.isOver();
     }
 
     public Optional<Player> play() {
@@ -74,6 +67,7 @@ public class Game {
             numTurn++;
         }
         this.out.log(Level.INFO, "End of the game!");
+        isOver = true;
         return getWinner();
     }
 
@@ -90,6 +84,7 @@ public class Game {
     private void playTurn() {
         int numPlayer = 1;
         int numAction = 1;
+        GameState state = getState();
         for (Player player : players) {
             this.out.log(Level.INFO, "Turn of player number {0} to play!", numPlayer);
             player.beginTurn(DEFAULT_ACTION_CREDIT);
@@ -98,7 +93,7 @@ public class Game {
                 this.out.log(Level.INFO, "Action number {0}:", numAction);
                 try {
                     var actionLister = makeActionLister(player, alreadyPlayedActions);
-                    var action = player.chooseAction(board, actionLister);
+                    var action = player.chooseAction(state, actionLister);
                     this.out.log(Level.INFO, "Action: {0}", action);
                     if (action == Action.END_TURN) break;
                     var applier = new ActionApplier(board, out, inventory, tileDeck);
@@ -130,5 +125,13 @@ public class Game {
         for (Objective objective : objectives) {
             objective.isAchieved(board, lastAction, inventory);
         }
+    }
+
+    public GameState getState() {
+        return new GameState(board, objectives, tileDeck, inventory, players, numTurn, isOver);
+    }
+
+    public boolean isOver() {
+        return isOver;
     }
 }

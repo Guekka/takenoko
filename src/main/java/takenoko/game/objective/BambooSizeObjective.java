@@ -33,6 +33,8 @@ public class BambooSizeObjective implements Objective {
     public BambooSizeObjective(BambooSizeObjective other) {
         sizeObjective = other.sizeObjective;
         achieved = other.achieved;
+        numberOfBamboos = other.numberOfBamboos;
+        color = other.color;
     }
 
     @Override

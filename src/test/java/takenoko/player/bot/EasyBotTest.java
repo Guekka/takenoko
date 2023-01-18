@@ -40,7 +40,7 @@ class EasyBotTest {
                 new Action.PlaceTile(new Coord(-1, 0), TileDeck.DEFAULT_DRAW_TILE_PREDICATE);
         when(actionLister.getPossibleActions(any())).thenReturn(List.of(expectedAction));
 
-        Action chosenAction = bot.chooseAction(board, actionLister);
+        Action chosenAction = bot.chooseAction(null, actionLister);
         assertEquals(expectedAction, chosenAction);
     }
 
@@ -60,7 +60,7 @@ class EasyBotTest {
                 .thenReturn(List.of(possibleAction, expectedAction));
 
         bot.beginTurn(1);
-        Action chosenAction = bot.chooseAction(board, actionLister);
+        Action chosenAction = bot.chooseAction(null, actionLister);
 
         assertEquals(expectedAction, chosenAction);
     }

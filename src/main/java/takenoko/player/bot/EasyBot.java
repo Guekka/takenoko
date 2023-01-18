@@ -3,7 +3,7 @@ package takenoko.player.bot;
 import java.util.Random;
 import takenoko.action.Action;
 import takenoko.action.PossibleActionLister;
-import takenoko.game.board.Board;
+import takenoko.game.GameState;
 import takenoko.game.tile.TileDeck;
 import takenoko.player.PlayerBase;
 import takenoko.utils.Utils;
@@ -16,7 +16,7 @@ public class EasyBot extends PlayerBase<EasyBot> implements PlayerBase.PlayerBas
         this.randomSource = randomSource;
     }
 
-    public Action chooseActionImpl(Board board, PossibleActionLister actionLister) {
+    public Action chooseActionImpl(GameState ignored, PossibleActionLister actionLister) {
         // If an objective is achieved, unveil it
         for (var obj : getInventory().getObjectives())
             if (obj.wasAchievedAfterLastCheck()) return new Action.UnveilObjective(obj);

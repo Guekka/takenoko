@@ -10,6 +10,7 @@ import takenoko.action.Action;
 import takenoko.action.ActionValidator;
 import takenoko.action.PossibleActionLister;
 import takenoko.game.GameInventory;
+import takenoko.game.GameState;
 import takenoko.game.board.Board;
 import takenoko.game.tile.TileDeck;
 
@@ -36,23 +37,23 @@ class PlayerBaseTest {
                 new ActionValidator(board, deck, new GameInventory(20), player.getInventory());
         var lister = new PossibleActionLister(board, validator, player.getInventory());
 
-        player.chooseAction(board, lister);
+        player.chooseAction(null, lister);
         assertEquals(2, player.availableActionCredits());
 
-        player.chooseAction(board, lister);
+        player.chooseAction(null, lister);
         assertEquals(1, player.availableActionCredits());
 
-        player.chooseAction(board, lister);
+        player.chooseAction(null, lister);
         assertEquals(0, player.availableActionCredits());
 
         // No more credits
-        assertThrows(IllegalStateException.class, () -> player.chooseAction(board, lister));
+        assertThrows(IllegalStateException.class, () -> player.chooseAction(null, lister));
     }
 
     private static class TestPlayer extends PlayerBase<TestPlayer>
             implements PlayerBase.PlayerBaseInterface {
         @Override
-        public Action chooseActionImpl(Board board, PossibleActionLister actionLister) {
+        public Action chooseActionImpl(GameState gameState, PossibleActionLister actionLister) {
             return Action.NONE;
         }
     }
