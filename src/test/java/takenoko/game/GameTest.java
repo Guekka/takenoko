@@ -20,7 +20,7 @@ import takenoko.player.Inventory;
 import takenoko.player.InventoryException;
 import takenoko.player.Player;
 import takenoko.player.PlayerException;
-import takenoko.player.bot.EasyBot;
+import takenoko.player.bot.RandomBot;
 import utils.TestLogHandler;
 
 class GameTest {
@@ -73,7 +73,8 @@ class GameTest {
         // So we run some games
 
         for (int i = 0; i < 10; i++) {
-            List<Player> players = List.of(new EasyBot(new Random()), new EasyBot(new Random()));
+            List<Player> players =
+                    List.of(new RandomBot(new Random()), new RandomBot(new Random()));
             List<Objective> objectives =
                     List.of(new TilePatternObjective(Color.GREEN, TilePatternObjective.LINE_3));
 

@@ -21,6 +21,12 @@ public class PossibleActionLister {
         this.playerInventory = playerInventory;
     }
 
+    public PossibleActionLister(PossibleActionLister other) {
+        this.board = new Board(other.board);
+        this.validator = new ActionValidator(other.validator);
+        this.playerInventory = new Inventory(other.playerInventory);
+    }
+
     private Tile getTileUnsafe(Coord coord) {
         try {
             return board.getTile(coord);

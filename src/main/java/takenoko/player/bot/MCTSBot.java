@@ -4,29 +4,38 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import takenoko.action.Action;
 import takenoko.action.ActionApplier;
 import takenoko.action.PossibleActionLister;
-import takenoko.game.Game;
 import takenoko.game.GameState;
 import takenoko.game.tile.TileDeck;
 import takenoko.player.PlayerBase;
 import takenoko.utils.Utils;
 
-public class HardBot extends PlayerBase<HardBot> implements PlayerBase.PlayerBaseInterface {
+public class MCTSBot extends PlayerBase<MCTSBot> implements PlayerBase.PlayerBaseInterface {
     private final Random randomSource;
     private final int maxIterations;
-    private GameState gameState;
+    private final int maxDepth;
+    private static final int DEFAULT_DEPTH = 5;
+    private static final int DEFAULT_MAX_ITERATIONS = 1000;
 
-    public HardBot(Random randomSource, int maxIterations) {
-        this.randomSource = randomSource;
-        this.maxIterations = maxIterations;
+    public MCTSBot(Random randomSource) {
+        this(randomSource, DEFAULT_MAX_ITERATIONS, DEFAULT_DEPTH);
     }
 
-    public HardBot(HardBot other) {
-        this(other.randomSource, other.maxIterations);
+    public MCTSBot(Random randomSource, int maxIterations, int maxDepth) {
+        this.randomSource = randomSource;
+        this.maxIterations = maxIterations;
+        this.maxDepth = maxDepth;
+    }
+
+    public MCTSBot(Random randomSource, int maxIterations) {
+        this(randomSource, maxIterations, DEFAULT_DEPTH);
+    }
+
+    public MCTSBot(MCTSBot other) {
+        this(other.randomSource, other.maxIterations, other.maxDepth);
     }
 
     public Action chooseActionImpl(GameState gameState, PossibleActionLister actionLister) {
@@ -67,9 +76,11 @@ public class HardBot extends PlayerBase<HardBot> implements PlayerBase.PlayerBas
         private int wins;
         private final List<Node> children;
         private final PossibleActionLister actionLister;
-        private final HardBot player;
+        private final MCTSBot player;
+        private static int count = 0;
+        private Logger out;
 
-        public Node(GameState gameState, PossibleActionLister actionLister, HardBot player) {
+        public Node(GameState gameState, PossibleActionLister actionLister, MCTSBot player) {
             this(null, gameState, actionLister, null, player);
         }
 
@@ -78,15 +89,19 @@ public class HardBot extends PlayerBase<HardBot> implements PlayerBase.PlayerBas
                 GameState gameState,
                 PossibleActionLister actionLister,
                 Node parent,
-                HardBot player) {
+                MCTSBot player) {
+            count++;
             this.action = action;
-            this.gameState = gameState;
+            this.gameState = gameState.copy();
             this.parent = parent;
-            this.player = new HardBot(player);
+            this.player = new MCTSBot(player);
             this.visits = 0;
             this.wins = 0;
             this.children = new ArrayList<>();
-            this.actionLister = actionLister;
+            this.actionLister = new PossibleActionLister(actionLister);
+            this.out = Logger.getLogger("takenoko.player.bot.MCTSBot");
+            // Mute the logger
+            // this.out.setLevel(Level.OFF);
         }
 
         public boolean isLeaf() {
@@ -94,7 +109,7 @@ public class HardBot extends PlayerBase<HardBot> implements PlayerBase.PlayerBas
         }
 
         public boolean isTerminal() {
-            return gameState.isOver(); // TODO : ADAPT IF SHORTER GAMES ARE IMPLEMENTED (DEPTH)
+            return gameState.isOver() || gameState.numTurn() > maxDepth;
         }
 
         public Node getBestChild() {
@@ -117,8 +132,6 @@ public class HardBot extends PlayerBase<HardBot> implements PlayerBase.PlayerBas
         public void generateChildren() {
             for (var a : actionLister.getPossibleActions(TileDeck.DEFAULT_DRAW_TILE_PREDICATE)) {
                 GameState newGameState = gameState.copy();
-                Logger out = Logger.getGlobal();
-                out.setLevel(Level.OFF);
                 var applier =
                         new ActionApplier(
                                 gameState.board(),
@@ -131,10 +144,19 @@ public class HardBot extends PlayerBase<HardBot> implements PlayerBase.PlayerBas
         }
 
         public int simulate() {
-            GameState newGameState = gameState.copy();
-            Game game = new Game(newGameState);
-            game.play();
-
+            while (!gameState.isOver() && gameState.numTurn() < maxDepth) {
+                List<Action> actions =
+                        actionLister.getPossibleActions(TileDeck.DEFAULT_DRAW_TILE_PREDICATE);
+                Action action = Utils.randomPick(actions, randomSource).orElse(Action.END_TURN);
+                var applier =
+                        new ActionApplier(
+                                gameState.board(),
+                                out,
+                                gameState.inventory(),
+                                gameState.tileDeck());
+                applier.apply(action, player);
+            }
+            // check if the bot wins
             return player.getScore();
         }
 

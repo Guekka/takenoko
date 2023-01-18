@@ -3,7 +3,10 @@ package takenoko.player;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import takenoko.game.objective.BambooSizeObjective;
+import takenoko.game.objective.HarvestingObjective;
 import takenoko.game.objective.Objective;
+import takenoko.game.objective.TilePatternObjective;
 import takenoko.game.tile.Color;
 import takenoko.game.tile.PowerUp;
 
@@ -13,6 +16,22 @@ public class Inventory {
     private int irrigations;
     private final EnumMap<PowerUp, Integer> powerUps;
     private final ArrayList<Objective> objectives;
+
+    public Inventory(Inventory other) {
+        this.bamboos = new EnumMap<>(other.bamboos);
+        this.irrigations = other.irrigations;
+        this.powerUps = new EnumMap<>(other.powerUps);
+        this.objectives = new ArrayList<>();
+        for (var objective : other.objectives) {
+            if (objective instanceof BambooSizeObjective bambooSizeObjective) {
+                objectives.add(new BambooSizeObjective(bambooSizeObjective));
+            } else if (objective instanceof TilePatternObjective tilePatternObjective) {
+                objectives.add(new TilePatternObjective(tilePatternObjective));
+            } else if (objective instanceof HarvestingObjective harvestingObjective) {
+                objectives.add(new HarvestingObjective(harvestingObjective));
+            }
+        }
+    }
 
     public Inventory() {
         bamboos = new EnumMap<>(Color.class);

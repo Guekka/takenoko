@@ -14,11 +14,11 @@ import takenoko.game.tile.TileDeck;
 import takenoko.player.Player;
 import takenoko.player.PlayerException;
 
-public class HardBotTest {
+public class MCTSBotTest {
 
     @Test
     void testChooseActions() throws PlayerException {
-        List<Player> players = List.of(new EasyBot(new Random()), new HardBot(new Random(), 20));
+        List<Player> players = List.of(new RandomBot(new Random()), new MCTSBot(new Random()));
         List<Objective> objectives =
                 List.of(
                         new TilePatternObjective(Color.GREEN, TilePatternObjective.TRIANGLE_3),

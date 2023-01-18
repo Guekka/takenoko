@@ -17,6 +17,14 @@ public class ActionValidator {
     private final Inventory playerInventory;
     private final List<Action> alreadyPlayedActions;
 
+    public ActionValidator(ActionValidator other) {
+        this.board = new Board(other.board);
+        this.deck = new TileDeck(other.deck);
+        this.gameInventory = new GameInventory(other.gameInventory);
+        this.playerInventory = new Inventory(other.playerInventory);
+        this.alreadyPlayedActions = new ArrayList<>(other.alreadyPlayedActions);
+    }
+
     public ActionValidator(
             Board board,
             TileDeck deck,

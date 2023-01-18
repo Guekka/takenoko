@@ -9,11 +9,12 @@ import takenoko.game.objective.TilePatternObjective;
 import takenoko.game.tile.Color;
 import takenoko.game.tile.TileDeck;
 import takenoko.player.Player;
-import takenoko.player.bot.EasyBot;
+import takenoko.player.bot.MCTSBot;
+import takenoko.player.bot.RandomBot;
 
 public class Main {
     public static void main(String... args) {
-        List<Player> players = List.of(new EasyBot(new Random()), new EasyBot(new Random()));
+        List<Player> players = List.of(new RandomBot(new Random()), new MCTSBot(new Random()));
         List<Objective> objectives =
                 List.of(
                         new TilePatternObjective(Color.GREEN, TilePatternObjective.TRIANGLE_3),
