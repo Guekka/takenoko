@@ -27,6 +27,7 @@ public class Game {
     private final GameInventory inventory;
     private final TileDeck tileDeck;
     private boolean isOver = false;
+    private static final int DEFAULT_MAX_TURNS = 200;
 
     public Game(List<Player> players, List<Objective> objectives, Logger out, TileDeck tileDeck) {
         isOver = false;
@@ -46,22 +47,9 @@ public class Game {
         inventory = new GameInventory(20);
     }
 
-    public Game(GameState gameState) {
-        board = gameState.board();
-        players = gameState.players();
-        // Make an empty logger (won't log)
-        out = Logger.getGlobal();
-        out.setLevel(Level.OFF);
-        objectives = gameState.objectives();
-        numTurn = gameState.numTurn();
-        inventory = gameState.inventory();
-        tileDeck = gameState.tileDeck();
-        isOver = gameState.isOver();
-    }
-
     public Optional<Player> play() {
         this.out.log(Level.INFO, "Beginning of the game!");
-        while (numTurn < 200) {
+        while (numTurn < DEFAULT_MAX_TURNS) {
             this.out.log(Level.INFO, "Beginning of the tour number " + numTurn + "!");
             playTurn();
             numTurn++;
@@ -84,7 +72,6 @@ public class Game {
     private void playTurn() {
         int numPlayer = 1;
         int numAction = 1;
-        GameState state = getState();
         for (Player player : players) {
             this.out.log(Level.INFO, "Turn of player number {0} to play!", numPlayer);
             player.beginTurn(DEFAULT_ACTION_CREDIT);
@@ -93,7 +80,7 @@ public class Game {
                 this.out.log(Level.INFO, "Action number {0}:", numAction);
                 try {
                     var actionLister = makeActionLister(player, alreadyPlayedActions);
-                    var action = player.chooseAction(state, actionLister);
+                    var action = player.chooseAction(board, actionLister);
                     this.out.log(Level.INFO, "Action: {0}", action);
                     if (action == Action.END_TURN) break;
                     var applier = new ActionApplier(board, out, inventory, tileDeck);
@@ -125,13 +112,5 @@ public class Game {
         for (Objective objective : objectives) {
             objective.isAchieved(board, lastAction, inventory);
         }
-    }
-
-    public GameState getState() {
-        return new GameState(board, objectives, tileDeck, inventory, players, numTurn, isOver);
-    }
-
-    public boolean isOver() {
-        return isOver;
     }
 }

@@ -20,7 +20,7 @@ public class Board {
     }
 
     public Board(Board other) {
-        tiles = new HashMap<>(other.tiles);
+        tiles = new HashMap<>();
         for (var entry : other.tiles.entrySet()) {
             if (entry.getValue() instanceof PondTile) {
                 tiles.put(entry.getKey(), new PondTile());

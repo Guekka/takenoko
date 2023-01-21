@@ -14,18 +14,19 @@ import takenoko.game.tile.TileDeck;
 import takenoko.player.Player;
 import takenoko.player.PlayerException;
 
-public class MCTSBotTest {
+public class RuleBasedBotTest {
 
     @Test
     void testChooseActions() throws PlayerException {
-        List<Player> players = List.of(new RandomBot(new Random()), new MCTSBot(new Random()));
+        List<Player> players =
+                List.of(new RandomBot(new Random(0)), new RuleBasedBot(new Random(0)));
         List<Objective> objectives =
                 List.of(
                         new TilePatternObjective(Color.GREEN, TilePatternObjective.TRIANGLE_3),
                         new TilePatternObjective(Color.GREEN, TilePatternObjective.DIAMOND_4),
                         new TilePatternObjective(Color.GREEN, TilePatternObjective.LINE_3),
                         new TilePatternObjective(Color.GREEN, TilePatternObjective.LINE_2));
-        var tileDeck = new TileDeck(new Random());
+        var tileDeck = new TileDeck(new Random(0));
         var logger = Logger.getGlobal();
         var game = new Game(players, objectives, logger, tileDeck);
         var winner = game.play();

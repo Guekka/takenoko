@@ -2,15 +2,14 @@ package takenoko.player;
 
 import takenoko.action.Action;
 import takenoko.action.PossibleActionLister;
-import takenoko.game.GameState;
+import takenoko.game.board.Board;
 
 public interface Player {
     void beginTurn(int actionCredits);
 
     int availableActionCredits();
 
-    Action chooseAction(GameState gameState, PossibleActionLister actionLister)
-            throws PlayerException;
+    Action chooseAction(Board board, PossibleActionLister actionLister) throws PlayerException;
 
     Inventory getInventory();
 

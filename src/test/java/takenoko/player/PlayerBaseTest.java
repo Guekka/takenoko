@@ -10,7 +10,6 @@ import takenoko.action.Action;
 import takenoko.action.ActionValidator;
 import takenoko.action.PossibleActionLister;
 import takenoko.game.GameInventory;
-import takenoko.game.GameState;
 import takenoko.game.board.Board;
 import takenoko.game.tile.TileDeck;
 
@@ -53,7 +52,7 @@ class PlayerBaseTest {
     private static class TestPlayer extends PlayerBase<TestPlayer>
             implements PlayerBase.PlayerBaseInterface {
         @Override
-        public Action chooseActionImpl(GameState gameState, PossibleActionLister actionLister) {
+        public Action chooseActionImpl(Board board, PossibleActionLister actionLister) {
             return Action.NONE;
         }
     }

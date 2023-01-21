@@ -2,7 +2,7 @@ package takenoko.player;
 
 import takenoko.action.Action;
 import takenoko.action.PossibleActionLister;
-import takenoko.game.GameState;
+import takenoko.game.board.Board;
 
 @SuppressWarnings("java:S119") // Why couldn't I name my template SELF?
 public abstract class PlayerBase<SELF extends PlayerBase<SELF> & PlayerBase.PlayerBaseInterface>
@@ -33,9 +33,9 @@ public abstract class PlayerBase<SELF extends PlayerBase<SELF> & PlayerBase.Play
     }
 
     @Override
-    public Action chooseAction(GameState gameState, PossibleActionLister actionLister)
+    public Action chooseAction(Board board, PossibleActionLister actionLister)
             throws PlayerException {
-        var action = self.chooseActionImpl(gameState, actionLister);
+        var action = self.chooseActionImpl(board, actionLister);
 
         actionCredits -= action.hasCost() ? 1 : 0;
         if (actionCredits < 0) {
@@ -55,7 +55,7 @@ public abstract class PlayerBase<SELF extends PlayerBase<SELF> & PlayerBase.Play
     }
 
     public interface PlayerBaseInterface {
-        Action chooseActionImpl(GameState gameState, PossibleActionLister actionLister)
+        Action chooseActionImpl(Board board, PossibleActionLister actionLister)
                 throws PlayerException;
     }
 }
