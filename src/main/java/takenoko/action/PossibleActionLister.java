@@ -41,16 +41,9 @@ public class PossibleActionLister {
         possibleActions.add(Action.NONE);
         possibleActions.add(Action.END_TURN);
 
-        // PANDA
         for (var coord : board.getPlacedCoords()) {
-            var action = new Action.MovePanda(coord);
-            if (validator.isValid(action)) possibleActions.add(action);
-        }
-
-        // GARDENER
-        for (var coord : board.getPlacedCoords()) {
-            var action = new Action.MoveGardener(coord);
-            if (validator.isValid(action)) possibleActions.add(action);
+            possibleActions.add(new Action.MoveGardener(coord));
+            possibleActions.add(new Action.MovePanda(coord));
         }
 
         possibleActions.add(new Action.TakeIrrigationStick());
