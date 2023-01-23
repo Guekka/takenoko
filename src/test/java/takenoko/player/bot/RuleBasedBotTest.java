@@ -19,7 +19,7 @@ import takenoko.player.InventoryException;
 import takenoko.player.PlayerException;
 import takenoko.utils.Coord;
 
-public class RuleBasedBotTest {
+class RuleBasedBotTest {
     Random randomSource;
     @Mock PossibleActionLister actionLister = mock(PossibleActionLister.class);
 
