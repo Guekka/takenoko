@@ -17,7 +17,8 @@ import takenoko.game.objective.Objective;
 import takenoko.game.tile.*;
 import takenoko.player.InventoryException;
 import takenoko.player.Player;
-import takenoko.player.bot.DefaultBot;
+import takenoko.player.PrivateInventory;
+import takenoko.player.bot.RandomBot;
 import takenoko.utils.Coord;
 import utils.TestLogHandler;
 
@@ -43,12 +44,12 @@ class ActionApplierTest {
         logger.addHandler(logHandler);
 
         board = new Board();
-        gameInventory = new GameInventory(1);
         deck = new TileDeck(new Random(0));
+        gameInventory = new GameInventory(1, deck);
 
-        applier = new ActionApplier(board, logger, gameInventory, deck);
-
-        player = new DefaultBot();
+        applier = new ActionApplier(board, logger, gameInventory, new PrivateInventory());
+        Random rand = new Random(0);
+        player = new RandomBot(rand);
     }
 
     @Test
@@ -60,7 +61,7 @@ class ActionApplierTest {
 
     @Test
     void placeTile() throws BoardException {
-        var action = new Action.PlaceTile(new Coord(0, 1), TileDeck.DEFAULT_DRAW_TILE_PREDICATE);
+        var action = new Action.PlaceTile(new Coord(0, 1), TileDeck.DEFAULT_DRAW_PREDICATE);
         int originalDeckSize = deck.size();
         applier.apply(action, player);
 
@@ -73,42 +74,47 @@ class ActionApplierTest {
     @Test
     void unveilObjective() throws InventoryException {
         var mockObj = mock(Objective.class);
-        when(mockObj.isAchieved(any(), any(), any())).thenReturn(true);
-        when(mockObj.wasAchievedAfterLastCheck()).thenReturn(true);
+        when(mockObj.computeAchieved(any(), any(), any())).thenReturn(true);
+        when(mockObj.isAchieved()).thenReturn(true);
         when(mockObj.getScore()).thenReturn(1);
 
-        player.getInventory().addObjective(mockObj);
+        player.getPrivateInventory().addObjective(mockObj);
 
         var action = new Action.UnveilObjective(mockObj);
+        assertFalse(player.getVisibleInventory().getFinishedObjectives().contains(mockObj));
+        assertTrue(player.getPrivateInventory().getObjectives().contains(mockObj));
         applier.apply(action, player);
 
         assertEquals(mockObj.getScore(), player.getScore());
+        assertTrue(player.getVisibleInventory().getFinishedObjectives().contains(mockObj));
+        assertFalse(player.getPrivateInventory().getObjectives().contains(mockObj));
 
         assertNoSevereLog();
     }
 
     @Test
     void unveilHarvestingObjective() throws InventoryException {
-        var inv = player.getInventory();
-        inv.incrementBamboo(Color.GREEN);
-        inv.incrementBamboo(Color.PINK);
-        inv.incrementBamboo(Color.YELLOW);
+        var visibleInv = player.getVisibleInventory();
+        var privateInv = player.getPrivateInventory();
+        visibleInv.incrementBamboo(Color.GREEN);
+        visibleInv.incrementBamboo(Color.PINK);
+        visibleInv.incrementBamboo(Color.YELLOW);
 
         var mockObj = mock(HarvestingObjective.class);
-        when(mockObj.isAchieved(any(), any(), any())).thenReturn(true);
-        when(mockObj.wasAchievedAfterLastCheck()).thenReturn(true);
+        when(mockObj.computeAchieved(any(), any(), any())).thenReturn(true);
+        when(mockObj.isAchieved()).thenReturn(true);
         when(mockObj.getGreen()).thenReturn(1);
         when(mockObj.getPink()).thenReturn(1);
         when(mockObj.getYellow()).thenReturn(1);
 
-        inv.addObjective(mockObj);
+        privateInv.addObjective(mockObj);
 
         var action = new Action.UnveilObjective(mockObj);
         applier.apply(action, player);
 
-        assertEquals(0, inv.getBamboo(Color.GREEN));
-        assertEquals(0, inv.getBamboo(Color.PINK));
-        assertEquals(0, inv.getBamboo(Color.YELLOW));
+        assertEquals(0, visibleInv.getBamboo(Color.GREEN));
+        assertEquals(0, visibleInv.getBamboo(Color.PINK));
+        assertEquals(0, visibleInv.getBamboo(Color.YELLOW));
 
         assertEquals(mockObj.getScore(), player.getScore());
 
@@ -118,7 +124,7 @@ class ActionApplierTest {
     @Test
     void placeIrrigation() throws BoardException, IrrigationException {
         board.placeTile(new Coord(0, 1), new BambooTile(Color.GREEN));
-        player.getInventory().incrementIrrigation();
+        player.getVisibleInventory().incrementIrrigation();
 
         var tile = board.getTile(new Coord(0, 1));
         var bambooTile = (BambooTile) tile;
@@ -128,19 +134,19 @@ class ActionApplierTest {
         applier.apply(action, player);
 
         assertTrue(bambooTile.isSideIrrigated(TileSide.UP_RIGHT));
-        assertFalse(player.getInventory().hasIrrigation());
+        assertFalse(player.getVisibleInventory().hasIrrigation());
         assertNoSevereLog();
     }
 
     @Test
     void takeIrrigation() {
-        assertFalse(player.getInventory().hasIrrigation());
+        assertFalse(player.getVisibleInventory().hasIrrigation());
         assertTrue(gameInventory.hasIrrigation());
 
         var action = new Action.TakeIrrigationStick();
         applier.apply(action, player);
 
-        assertTrue(player.getInventory().hasIrrigation());
+        assertTrue(player.getVisibleInventory().hasIrrigation());
         assertFalse(gameInventory.hasIrrigation());
         assertNoSevereLog();
     }

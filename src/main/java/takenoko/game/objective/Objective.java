@@ -2,12 +2,12 @@ package takenoko.game.objective;
 
 import takenoko.action.Action;
 import takenoko.game.board.Board;
-import takenoko.player.Inventory;
+import takenoko.game.board.VisibleInventory;
 
 public interface Objective {
-    boolean isAchieved(Board board, Action lastAction, Inventory inventory);
+    boolean computeAchieved(Board board, Action lastAction, VisibleInventory visibleInventory);
 
-    boolean wasAchievedAfterLastCheck();
+    boolean isAchieved();
 
     int getScore();
 }

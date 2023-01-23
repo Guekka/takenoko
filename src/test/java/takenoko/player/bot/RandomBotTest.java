@@ -37,10 +37,10 @@ class RandomBotTest {
         bot.beginTurn(1);
 
         var expectedAction =
-                new Action.PlaceTile(new Coord(-1, 0), TileDeck.DEFAULT_DRAW_TILE_PREDICATE);
+                new Action.PlaceTile(new Coord(-1, 0), TileDeck.DEFAULT_DRAW_PREDICATE);
         when(actionLister.getPossibleActions(any())).thenReturn(List.of(expectedAction));
 
-        Action chosenAction = bot.chooseAction(null, actionLister);
+        Action chosenAction = bot.chooseAction(board, actionLister);
         assertEquals(expectedAction, chosenAction);
     }
 
@@ -50,17 +50,17 @@ class RandomBotTest {
         RandomBot bot = new RandomBot(randomSource);
 
         var objMock = mock(Objective.class);
-        when(objMock.wasAchievedAfterLastCheck()).thenReturn(true);
+        when(objMock.isAchieved()).thenReturn(true);
 
-        bot.getInventory().addObjective(objMock);
+        bot.getPrivateInventory().addObjective(objMock);
         var possibleAction =
-                new Action.PlaceTile(new Coord(-1, 0), TileDeck.DEFAULT_DRAW_TILE_PREDICATE);
+                new Action.PlaceTile(new Coord(-1, 0), TileDeck.DEFAULT_DRAW_PREDICATE);
         var expectedAction = new Action.UnveilObjective(objMock);
         when(actionLister.getPossibleActions(any()))
                 .thenReturn(List.of(possibleAction, expectedAction));
 
         bot.beginTurn(1);
-        Action chosenAction = bot.chooseAction(null, actionLister);
+        Action chosenAction = bot.chooseAction(board, actionLister);
 
         assertEquals(expectedAction, chosenAction);
     }

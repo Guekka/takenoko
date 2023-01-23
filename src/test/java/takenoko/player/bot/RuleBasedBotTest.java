@@ -1,36 +1,67 @@
 package takenoko.player.bot;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Logger;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import takenoko.game.Game;
+import org.mockito.Mock;
+import takenoko.action.Action;
+import takenoko.action.PossibleActionLister;
+import takenoko.game.board.Board;
 import takenoko.game.objective.Objective;
-import takenoko.game.objective.TilePatternObjective;
-import takenoko.game.tile.Color;
 import takenoko.game.tile.TileDeck;
-import takenoko.player.Player;
+import takenoko.player.InventoryException;
 import takenoko.player.PlayerException;
+import takenoko.utils.Coord;
 
 public class RuleBasedBotTest {
+    Random randomSource;
+    @Mock PossibleActionLister actionLister = mock(PossibleActionLister.class);
+
+    @BeforeEach
+    void setUp() {
+        // Fixed seed
+        randomSource = new Random(0);
+    }
 
     @Test
     void testChooseActions() throws PlayerException {
-        List<Player> players =
-                List.of(new RandomBot(new Random(0)), new RuleBasedBot(new Random(0)));
-        List<Objective> objectives =
-                List.of(
-                        new TilePatternObjective(Color.GREEN, TilePatternObjective.TRIANGLE_3),
-                        new TilePatternObjective(Color.GREEN, TilePatternObjective.DIAMOND_4),
-                        new TilePatternObjective(Color.GREEN, TilePatternObjective.LINE_3),
-                        new TilePatternObjective(Color.GREEN, TilePatternObjective.LINE_2));
-        var tileDeck = new TileDeck(new Random(0));
-        var logger = Logger.getGlobal();
-        var game = new Game(players, objectives, logger, tileDeck);
-        var winner = game.play();
+        Board board = new Board();
+        RuleBasedBot bot = new RuleBasedBot(randomSource);
 
-        assertTrue(winner.isPresent());
+        bot.beginTurn(1);
+
+        var expectedAction =
+                new Action.PlaceTile(new Coord(-1, 0), TileDeck.DEFAULT_DRAW_PREDICATE);
+        when(actionLister.getPossibleActions(any())).thenReturn(List.of(expectedAction));
+
+        Action chosenAction = bot.chooseAction(board, actionLister);
+        assertEquals(expectedAction, chosenAction);
+    }
+
+    @Test
+    void unveilsObjectiveASAP() throws PlayerException, InventoryException {
+        Board board = new Board();
+        RuleBasedBot bot = new RuleBasedBot(randomSource);
+
+        var objMock = mock(Objective.class);
+        when(objMock.isAchieved()).thenReturn(true);
+
+        bot.getPrivateInventory().addObjective(objMock);
+        var possibleAction =
+                new Action.PlaceTile(new Coord(-1, 0), TileDeck.DEFAULT_DRAW_PREDICATE);
+        var expectedAction = new Action.UnveilObjective(objMock);
+        when(actionLister.getPossibleActions(any()))
+                .thenReturn(List.of(possibleAction, expectedAction));
+
+        bot.beginTurn(1);
+        Action chosenAction = bot.chooseAction(board, actionLister);
+
+        assertEquals(expectedAction, chosenAction);
     }
 }

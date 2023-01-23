@@ -1,8 +1,6 @@
 package takenoko.game;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import takenoko.action.Action;
@@ -10,10 +8,7 @@ import takenoko.action.ActionApplier;
 import takenoko.action.ActionValidator;
 import takenoko.action.PossibleActionLister;
 import takenoko.game.board.Board;
-import takenoko.game.objective.Objective;
 import takenoko.game.tile.TileDeck;
-import takenoko.player.Inventory;
-import takenoko.player.InventoryException;
 import takenoko.player.Player;
 import takenoko.player.PlayerException;
 
@@ -22,29 +17,15 @@ public class Game {
     private final Board board;
     private final List<Player> players;
     private final Logger out;
-    private final List<Objective> objectives;
     private int numTurn = 1;
     private final GameInventory inventory;
-    private final TileDeck tileDeck;
-    private boolean isOver = false;
-    private static final int DEFAULT_MAX_TURNS = 200;
+    public static final int DEFAULT_MAX_TURNS = 200;
 
-    public Game(List<Player> players, List<Objective> objectives, Logger out, TileDeck tileDeck) {
-        isOver = false;
-        board = new Board();
+    public Game(List<Player> players, Logger out, TileDeck tileDeck) {
+        board = new Board(players);
         this.players = players;
-        this.objectives = objectives;
         this.out = out;
-        this.tileDeck = tileDeck;
-        for (var player : players) {
-            // TODO: change how objectives are assigned
-            try {
-                player.getInventory().addObjective(objectives.get(0));
-            } catch (InventoryException e) {
-                out.log(Level.SEVERE, "Failed to add objective to player", e);
-            }
-        }
-        inventory = new GameInventory(20);
+        inventory = new GameInventory(20, tileDeck);
     }
 
     public Optional<Player> play() {
@@ -55,7 +36,6 @@ public class Game {
             numTurn++;
         }
         this.out.log(Level.INFO, "End of the game!");
-        isOver = true;
         return getWinner();
     }
 
@@ -83,12 +63,12 @@ public class Game {
                     var action = player.chooseAction(board, actionLister);
                     this.out.log(Level.INFO, "Action: {0}", action);
                     if (action == Action.END_TURN) break;
-                    var applier = new ActionApplier(board, out, inventory, tileDeck);
+                    var applier =
+                            new ActionApplier(board, out, inventory, player.getPrivateInventory());
                     applier.apply(action, player);
                     this.out.log(Level.INFO, "Action applied!");
                     alreadyPlayedActions.add(action);
-                    checkObjectives(action, player.getInventory());
-                    this.out.log(Level.INFO, "Objectives checked!");
+                    checkObjectives(action);
                 } catch (PlayerException e) {
                     this.out.log(Level.SEVERE, "Player exception: {0}", e.getMessage());
                 }
@@ -97,20 +77,35 @@ public class Game {
             numPlayer++;
             numAction = 1;
         }
+        displayInventories();
     }
 
     private PossibleActionLister makeActionLister(
             Player player, List<Action> alreadyPlayedActions) {
         var validator =
                 new ActionValidator(
-                        board, tileDeck, inventory, player.getInventory(), alreadyPlayedActions);
+                        board,
+                        inventory,
+                        player.getPrivateInventory(),
+                        player.getVisibleInventory(),
+                        alreadyPlayedActions);
 
-        return new PossibleActionLister(board, validator, player.getInventory());
+        return new PossibleActionLister(board, validator, player.getPrivateInventory());
     }
 
-    private void checkObjectives(Action lastAction, Inventory inventory) {
-        for (Objective objective : objectives) {
-            objective.isAchieved(board, lastAction, inventory);
+    private void checkObjectives(Action lastAction) {
+        for (var player : players) {
+            for (var obj : player.getPrivateInventory().getObjectives())
+                obj.computeAchieved(board, lastAction, player.getVisibleInventory());
+        }
+    }
+
+    private void displayInventories() {
+        int numPlayer = 1;
+        for (Player p : players) {
+            this.out.log(Level.INFO, "Player number {0} informations :", numPlayer);
+            this.out.log(Level.INFO, "Score : {0}", board.getPlayerScore(p));
+            numPlayer++;
         }
     }
 }

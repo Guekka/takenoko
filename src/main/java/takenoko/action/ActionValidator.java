@@ -5,42 +5,44 @@ import java.util.List;
 import takenoko.game.GameInventory;
 import takenoko.game.board.Board;
 import takenoko.game.board.BoardException;
+import takenoko.game.board.VisibleInventory;
 import takenoko.game.objective.HarvestingObjective;
+import takenoko.game.objective.Objective;
+import takenoko.game.objective.ObjectiveDeck;
 import takenoko.game.tile.Color;
-import takenoko.game.tile.TileDeck;
-import takenoko.player.Inventory;
+import takenoko.player.PrivateInventory;
 
 public class ActionValidator {
     private final Board board;
-    private final TileDeck deck;
     private final GameInventory gameInventory;
-    private final Inventory playerInventory;
+    private final PrivateInventory playerPrivateInventory;
+    private final VisibleInventory playerVisibleInventory;
     private final List<Action> alreadyPlayedActions;
-
-    public ActionValidator(ActionValidator other) {
-        this.board = new Board(other.board);
-        this.deck = new TileDeck(other.deck);
-        this.gameInventory = new GameInventory(other.gameInventory);
-        this.playerInventory = new Inventory(other.playerInventory);
-        this.alreadyPlayedActions = new ArrayList<>(other.alreadyPlayedActions);
-    }
 
     public ActionValidator(
             Board board,
-            TileDeck deck,
             GameInventory gameInventory,
-            Inventory playerInventory,
+            PrivateInventory playerPrivateInventory,
+            VisibleInventory playerVisibleInventory,
             List<Action> alreadyPlayedActions) {
         this.board = board;
-        this.deck = deck;
         this.gameInventory = gameInventory;
-        this.playerInventory = playerInventory;
+        this.playerPrivateInventory = playerPrivateInventory;
+        this.playerVisibleInventory = playerVisibleInventory;
         this.alreadyPlayedActions = alreadyPlayedActions;
     }
 
     public ActionValidator(
-            Board board, TileDeck deck, GameInventory gameInventory, Inventory playerInventory) {
-        this(board, deck, gameInventory, playerInventory, new ArrayList<>());
+            Board board,
+            GameInventory gameInventory,
+            PrivateInventory playerPrivateInventory,
+            VisibleInventory playerVisibleInventory) {
+        this(
+                board,
+                gameInventory,
+                playerPrivateInventory,
+                playerVisibleInventory,
+                new ArrayList<>());
     }
 
     public boolean isValid(Action action) {
@@ -51,6 +53,12 @@ public class ActionValidator {
             case Action.PlaceIrrigationStick a -> isValid(a);
             case Action.PlaceTile a -> isValid(a);
             case Action.TakeIrrigationStick a -> isValid(a);
+            case Action.TakeHarvestingObjective ignored -> canTakeObjective(
+                    gameInventory.getHarvestingObjectiveDeck());
+            case Action.TakeBambooSizeObjective ignored -> canTakeObjective(
+                    gameInventory.getBambooSizeObjectiveDeck());
+            case Action.TakeTilePatternObjective ignored -> canTakeObjective(
+                    gameInventory.getTilePatternObjectiveDeck());
             case Action.UnveilObjective a -> isValid(a);
             case Action.MoveGardener a -> isValid(a);
             case Action.MovePanda a -> isValid(a);
@@ -58,8 +66,12 @@ public class ActionValidator {
         };
     }
 
+    private <O extends Objective> boolean canTakeObjective(ObjectiveDeck<O> deck) {
+        return deck.size() > 0 && playerPrivateInventory.canDrawObjective();
+    }
+
     private boolean isValid(Action.PlaceIrrigationStick action) {
-        if (!playerInventory.hasIrrigation()) {
+        if (!playerVisibleInventory.hasIrrigation()) {
             return false;
         }
 
@@ -75,7 +87,7 @@ public class ActionValidator {
     }
 
     private boolean isValid(Action.PlaceTile action) {
-        return deck.size() > 0 && board.isAvailableCoord(action.coord());
+        return gameInventory.getTileDeck().size() > 0 && board.isAvailableCoord(action.coord());
     }
 
     private boolean isValid(Action.TakeIrrigationStick action) {
@@ -83,12 +95,12 @@ public class ActionValidator {
     }
 
     private boolean isValid(Action.UnveilObjective action) {
-        if (!action.objective().wasAchievedAfterLastCheck()) return false;
+        if (!action.objective().isAchieved()) return false;
 
         if (action.objective() instanceof HarvestingObjective needs) {
-            return playerInventory.getBamboo(Color.GREEN) >= needs.getGreen()
-                    && playerInventory.getBamboo(Color.PINK) >= needs.getPink()
-                    && playerInventory.getBamboo(Color.YELLOW) >= needs.getYellow();
+            return playerVisibleInventory.getBamboo(Color.GREEN) >= needs.getGreen()
+                    && playerVisibleInventory.getBamboo(Color.PINK) >= needs.getPink()
+                    && playerVisibleInventory.getBamboo(Color.YELLOW) >= needs.getYellow();
         }
         return true;
     }

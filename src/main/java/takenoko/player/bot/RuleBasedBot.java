@@ -4,6 +4,7 @@ import java.util.*;
 import takenoko.action.Action;
 import takenoko.action.PossibleActionLister;
 import takenoko.game.board.Board;
+import takenoko.game.tile.TileDeck;
 import takenoko.player.PlayerBase;
 import takenoko.player.bot.strategies.Strategies;
 import takenoko.utils.Utils;
@@ -25,9 +26,13 @@ public class RuleBasedBot extends PlayerBase<RuleBasedBot>
     }
 
     public Action chooseActionImpl(Board board, PossibleActionLister actionLister) {
+        var possibleActions = actionLister.getPossibleActions(TileDeck.DEFAULT_DRAW_PREDICATE);
         // If an objective is achieved, unveil it
-        for (var obj : getInventory().getObjectives())
-            if (obj.wasAchievedAfterLastCheck()) return new Action.UnveilObjective(obj);
+        for (var action : possibleActions) {
+            if (action instanceof Action.UnveilObjective) {
+                return action;
+            }
+        }
 
         // if we do not have enough action credits, end the turn
         if (availableActionCredits() == 0) return Action.END_TURN;

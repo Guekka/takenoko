@@ -16,17 +16,19 @@ public class RandomBot extends PlayerBase<RandomBot> implements PlayerBase.Playe
         this.randomSource = randomSource;
     }
 
-    public Action chooseActionImpl(Board ignored, PossibleActionLister actionLister) {
+    public Action chooseActionImpl(Board board, PossibleActionLister actionLister) {
+        var possibleActions = actionLister.getPossibleActions(TileDeck.DEFAULT_DRAW_PREDICATE);
         // If an objective is achieved, unveil it
-        for (var obj : getInventory().getObjectives())
-            if (obj.wasAchievedAfterLastCheck()) return new Action.UnveilObjective(obj);
+        for (var action : possibleActions) {
+            if (action instanceof Action.UnveilObjective) {
+                return action;
+            }
+        }
 
         // if we do not have enough action credits, end the turn
         if (availableActionCredits() == 0) return Action.END_TURN;
 
-        return Utils.randomPick(
-                        actionLister.getPossibleActions(TileDeck.DEFAULT_DRAW_TILE_PREDICATE),
-                        randomSource)
+        return Utils.randomPick(possibleActions, randomSource)
                 .orElseThrow(() -> new IllegalStateException("No possible action"));
     }
 }

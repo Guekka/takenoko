@@ -22,13 +22,6 @@ public class BambooTile implements Tile {
         this.color = color;
     }
 
-    public BambooTile(BambooTile other) {
-        bambooSize = other.bambooSize;
-        powerUp = other.powerUp;
-        irrigatedSides = new EnumMap<>(other.irrigatedSides);
-        color = other.color;
-    }
-
     public BambooTile(Color color, PowerUp powerUp) {
         this(color);
         this.powerUp = powerUp;

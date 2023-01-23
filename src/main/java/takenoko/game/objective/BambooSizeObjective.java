@@ -3,20 +3,22 @@ package takenoko.game.objective;
 import takenoko.action.Action;
 import takenoko.game.board.Board;
 import takenoko.game.board.BoardException;
+import takenoko.game.board.VisibleInventory;
 import takenoko.game.tile.BambooSizeException;
 import takenoko.game.tile.BambooTile;
 import takenoko.game.tile.Color;
 import takenoko.game.tile.Tile;
-import takenoko.player.Inventory;
 
 public class BambooSizeObjective implements Objective {
 
     private final int numberOfBamboos;
     private final int sizeObjective;
     private final Color color;
+    private final int score;
     private boolean achieved = false;
 
-    public BambooSizeObjective(int nbOfBamboos, int size, Color c) throws BambooSizeException {
+    public BambooSizeObjective(int nbOfBamboos, int size, Color c, int score)
+            throws BambooSizeException {
 
         if (nbOfBamboos < 1 || nbOfBamboos > 4) {
             throw new BambooSizeException("Error : unreachable number of bamboos.");
@@ -28,17 +30,15 @@ public class BambooSizeObjective implements Objective {
         this.numberOfBamboos = nbOfBamboos;
         this.sizeObjective = size;
         this.color = c;
+        this.score = score;
     }
 
-    public BambooSizeObjective(BambooSizeObjective other) {
-        sizeObjective = other.sizeObjective;
-        achieved = other.achieved;
-        numberOfBamboos = other.numberOfBamboos;
-        color = other.color;
+    public BambooSizeObjective(int nbOfBamboos, int size, Color c) throws BambooSizeException {
+        this(nbOfBamboos, size, c, 1);
     }
 
     @Override
-    public boolean isAchieved(Board board, Action lastAction, Inventory ignored) {
+    public boolean computeAchieved(Board board, Action lastAction, VisibleInventory ignored) {
         int nbOfBamboos = numberOfBamboos;
         achieved = false;
         for (var coord : board.getPlacedCoords()) {
@@ -61,12 +61,12 @@ public class BambooSizeObjective implements Objective {
     }
 
     @Override
-    public boolean wasAchievedAfterLastCheck() {
+    public boolean isAchieved() {
         return achieved;
     }
 
     @Override
     public int getScore() {
-        return 1;
+        return score;
     }
 }

@@ -2,44 +2,33 @@ package takenoko.action;
 
 import java.util.ArrayList;
 import java.util.List;
+import takenoko.game.Deck;
 import takenoko.game.board.Board;
-import takenoko.game.board.BoardException;
 import takenoko.game.tile.Tile;
-import takenoko.game.tile.TileDeck;
 import takenoko.game.tile.TileSide;
-import takenoko.player.Inventory;
-import takenoko.utils.Coord;
+import takenoko.player.PrivateInventory;
 
 public class PossibleActionLister {
     private final Board board;
     private final ActionValidator validator;
-    private final Inventory playerInventory;
+    private final PrivateInventory playerPrivateInventory;
 
-    public PossibleActionLister(Board board, ActionValidator validator, Inventory playerInventory) {
+    public PossibleActionLister(
+            Board board, ActionValidator validator, PrivateInventory playerPrivateInventory) {
         this.board = board;
         this.validator = validator;
-        this.playerInventory = playerInventory;
+        this.playerPrivateInventory = playerPrivateInventory;
     }
 
-    public PossibleActionLister(PossibleActionLister other) {
-        this.board = new Board(other.board);
-        this.validator = new ActionValidator(other.validator);
-        this.playerInventory = new Inventory(other.playerInventory);
-    }
-
-    private Tile getTileUnsafe(Coord coord) {
-        try {
-            return board.getTile(coord);
-        } catch (BoardException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    public List<Action> getPossibleActions(TileDeck.DrawTilePredicate drawTilePredicate) {
+    public List<Action> getPossibleActions(Deck.DrawPredicate<Tile> drawPredicate) {
         List<Action> possibleActions = new ArrayList<>();
 
         possibleActions.add(Action.NONE);
         possibleActions.add(Action.END_TURN);
+
+        possibleActions.add(new Action.TakeBambooSizeObjective());
+        possibleActions.add(new Action.TakeHarvestingObjective());
+        possibleActions.add(new Action.TakeTilePatternObjective());
 
         for (var coord : board.getPlacedCoords()) {
             possibleActions.add(new Action.MoveGardener(coord));
@@ -54,12 +43,12 @@ public class PossibleActionLister {
             }
         }
 
-        for (var objective : playerInventory.getObjectives()) {
+        for (var objective : playerPrivateInventory.getObjectives()) {
             possibleActions.add(new Action.UnveilObjective(objective));
         }
 
         for (var coord : board.getAvailableCoords()) {
-            possibleActions.add(new Action.PlaceTile(coord, drawTilePredicate));
+            possibleActions.add(new Action.PlaceTile(coord, drawPredicate));
         }
 
         return possibleActions.stream().filter(validator::isValid).toList();
