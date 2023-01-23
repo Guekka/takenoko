@@ -19,7 +19,7 @@ import takenoko.player.InventoryException;
 import takenoko.player.PlayerException;
 import takenoko.utils.Coord;
 
-class EasyBotTest {
+class RandomBotTest {
     Random randomSource;
     @Mock PossibleActionLister actionLister = mock(PossibleActionLister.class);
 
@@ -32,7 +32,7 @@ class EasyBotTest {
     @Test
     void testChooseActions() throws PlayerException {
         Board board = new Board();
-        EasyBot bot = new EasyBot(randomSource);
+        RandomBot bot = new RandomBot(randomSource);
 
         bot.beginTurn(1);
 
@@ -47,7 +47,7 @@ class EasyBotTest {
     @Test
     void unveilsObjectiveASAP() throws PlayerException, InventoryException {
         Board board = new Board();
-        EasyBot bot = new EasyBot(randomSource);
+        RandomBot bot = new RandomBot(randomSource);
 
         var objMock = mock(Objective.class);
         when(objMock.status()).thenReturn(new Objective.Status(1, 1));

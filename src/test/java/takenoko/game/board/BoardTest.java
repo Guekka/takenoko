@@ -11,7 +11,7 @@ import takenoko.game.objective.HarvestingObjective;
 import takenoko.game.objective.TilePatternObjective;
 import takenoko.game.tile.*;
 import takenoko.player.Player;
-import takenoko.player.bot.EasyBot;
+import takenoko.player.bot.RandomBot;
 import takenoko.utils.Coord;
 
 class BoardTest {
@@ -21,8 +21,8 @@ class BoardTest {
 
     @BeforeEach
     void setUp() {
-        p1 = new EasyBot(new Random());
-        p2 = new EasyBot(new Random());
+        p1 = new RandomBot(new Random());
+        p2 = new RandomBot(new Random());
         tileboard = new Board(List.of(p1, p2));
     }
 

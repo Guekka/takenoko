@@ -6,11 +6,11 @@ import java.util.logging.Logger;
 import takenoko.game.Game;
 import takenoko.game.tile.TileDeck;
 import takenoko.player.Player;
-import takenoko.player.bot.EasyBot;
+import takenoko.player.bot.RandomBot;
 
 public class Main {
     public static void main(String... args) {
-        List<Player> players = List.of(new EasyBot(new Random()), new EasyBot(new Random()));
+        List<Player> players = List.of(new RandomBot(new Random()), new RandomBot(new Random()));
         var tileDeck = new TileDeck(new Random());
         var logger = Logger.getGlobal();
         var game = new Game(players, logger, tileDeck);
