@@ -18,7 +18,7 @@ import takenoko.game.tile.*;
 import takenoko.player.InventoryException;
 import takenoko.player.Player;
 import takenoko.player.PrivateInventory;
-import takenoko.player.bot.DefaultBot;
+import takenoko.player.bot.RandomBot;
 import takenoko.utils.Coord;
 import utils.TestLogHandler;
 
@@ -49,7 +49,7 @@ class ActionApplierTest {
 
         applier = new ActionApplier(board, logger, gameInventory, new PrivateInventory());
 
-        player = new DefaultBot();
+        player = new RandomBot(new Random(0));
     }
 
     @Test
