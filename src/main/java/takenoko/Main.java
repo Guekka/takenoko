@@ -7,10 +7,15 @@ import takenoko.game.Game;
 import takenoko.game.tile.TileDeck;
 import takenoko.player.Player;
 import takenoko.player.bot.RandomBot;
+import takenoko.player.bot.RuleBasedBot;
+import takenoko.player.bot.strategies.Strategies;
 
 public class Main {
     public static void main(String... args) {
-        List<Player> players = List.of(new RandomBot(new Random()), new RandomBot(new Random()));
+        List<Player> players =
+                List.of(
+                        new RandomBot(new Random()),
+                        new RuleBasedBot(new Random(), Strategies.PLOT_RUSH));
         var tileDeck = new TileDeck(new Random());
         var logger = Logger.getGlobal();
         var game = new Game(players, logger, tileDeck);

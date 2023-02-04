@@ -4,6 +4,8 @@ import java.util.*;
 import takenoko.action.Action;
 import takenoko.action.PossibleActionLister;
 import takenoko.game.board.Board;
+import takenoko.game.objective.Objective;
+import takenoko.game.objective.TilePatternObjective;
 import takenoko.game.tile.TileDeck;
 import takenoko.player.PlayerBase;
 import takenoko.player.bot.strategies.Strategies;
@@ -46,14 +48,59 @@ public class RuleBasedBot extends PlayerBase<RuleBasedBot>
     }
 
     private Action generalTacticsStrategy(Board board, PossibleActionLister actionLister) {
-        return null;
+        List<Action> possibleActions =
+                actionLister.getPossibleActions(TileDeck.DEFAULT_DRAW_PREDICATE);
+
+        // TODO: implement the general tactics strategy
+
+        // else, play a random action
+        return Utils.randomPick(possibleActions, randomSource).orElse(Action.END_TURN);
     }
 
     private Action bambooPruningStrategy(Board board, PossibleActionLister actionLister) {
-        return null;
+        List<Action> possibleActions =
+                actionLister.getPossibleActions(TileDeck.DEFAULT_DRAW_PREDICATE);
+
+        // TODO: implement the bamboo pruning strategy
+
+        // else, play a random action
+        return Utils.randomPick(possibleActions, randomSource).orElse(Action.END_TURN);
     }
 
     private Action plotRushStrategy(Board board, PossibleActionLister actionLister) {
-        return null;
+        List<Action> possibleActions =
+                actionLister.getPossibleActions(TileDeck.DEFAULT_DRAW_PREDICATE);
+
+        // Starting by drawing a lot of tile pattern objectives
+        for (var action : possibleActions) {
+            if (action instanceof Action.TakeTilePatternObjective) {
+                return action;
+            }
+        }
+
+        // If we have enough pattern objectives, retrieve all objectives
+        List<TilePatternObjective> unfinishedObjectives = new ArrayList<>();
+        for (Objective objective : getPrivateInventory().getObjectives()) {
+            if (objective instanceof TilePatternObjective tilePatternObjective) {
+                unfinishedObjectives.add(tilePatternObjective);
+            }
+        }
+
+        // And get the first coordinate where placing a tile would be beneficial
+        for (TilePatternObjective objective : unfinishedObjectives)
+            for (var action : possibleActions)
+                if (action instanceof Action.PlaceTile actionPlaceTile
+                        && objective.computeCanBeUsedToAchieve(board, actionPlaceTile))
+                    return action;
+
+        // else, just place a tile
+        for (var action : possibleActions) {
+            if (action instanceof Action.PlaceTile) {
+                return action;
+            }
+        }
+
+        // else, play a random action
+        return Utils.randomPick(possibleActions, randomSource).orElse(Action.END_TURN);
     }
 }
