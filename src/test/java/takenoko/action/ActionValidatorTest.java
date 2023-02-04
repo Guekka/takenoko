@@ -103,7 +103,9 @@ class ActionValidatorTest {
     @ParameterizedTest
     @MethodSource("unveilObjectiveProvider")
     void testUnveilObjective(Objective obj, boolean expectedResult) {
-        when(obj.isAchieved()).thenReturn(expectedResult);
+        var status = expectedResult ? new Objective.Status(1, 1) : new Objective.Status(0, 1);
+        when(obj.status()).thenReturn(status);
+
         var action = new Action.UnveilObjective(obj);
         assertEquals(expectedResult, validator.isValid(action));
     }

@@ -12,11 +12,11 @@ public class BambooSizeObjective implements Objective {
     private final int sizeObjective;
     private final Color color;
     private final int score;
-    private boolean achieved = false;
-    private final PowerUpNecessity
-            powerUpNecessity; // MANDATORY if the objective need a PowerUp to be completed,
+    // MANDATORY if the objective need a PowerUp to be completed,
     // FORBIDDEN if PowerUps are forbidden, else NO_MATTER.
+    private final PowerUpNecessity powerUpNecessity;
     private final PowerUp powerUp;
+    private Status status;
 
     public BambooSizeObjective(
             int nbOfBamboos,
@@ -53,11 +53,9 @@ public class BambooSizeObjective implements Objective {
 
     @Override
     public boolean computeAchieved(Board board, Action lastAction, VisibleInventory ignored) {
-        int nbOfBamboos = numberOfBamboos;
-        boolean powerUpCondition = false;
-        achieved = false;
+        status = new Status(0, numberOfBamboos + 1); // +1 because of powerUpCondition
         for (var coord : board.getPlacedCoords()) {
-            Tile tile = null;
+            Tile tile;
             try {
                 tile = board.getTile(coord);
             } catch (BoardException e) {
@@ -66,24 +64,24 @@ public class BambooSizeObjective implements Objective {
             if (tile instanceof BambooTile bambooTile
                     && bambooTile.getBambooSize() == sizeObjective
                     && bambooTile.getColor() == color) {
-                nbOfBamboos--;
-                powerUpCondition =
+                status.completed++;
+                status.completed +=
                         switch (this.powerUpNecessity) {
-                            case FORBIDDEN -> bambooTile.getPowerUp().equals(PowerUp.NONE);
-                            case MANDATORY -> bambooTile.getPowerUp().equals(this.powerUp);
-                            case NO_MATTER -> true;
+                            case FORBIDDEN -> bambooTile.getPowerUp().equals(PowerUp.NONE) ? 1 : 0;
+                            case MANDATORY -> bambooTile.getPowerUp().equals(this.powerUp) ? 1 : 0;
+                            case NO_MATTER -> 1;
                         };
             }
         }
-        if (nbOfBamboos <= 0 && powerUpCondition) {
-            achieved = true;
+        if (status.achieved()) {
+            status.completed = status.totalToComplete; // prevent >100% progress
         }
-        return achieved;
+        return status.achieved();
     }
 
     @Override
-    public boolean isAchieved() {
-        return achieved;
+    public Status status() {
+        return status;
     }
 
     @Override

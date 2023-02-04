@@ -1,6 +1,5 @@
 package takenoko.game.objective;
 
-import java.util.Arrays;
 import java.util.EnumMap;
 import takenoko.action.Action;
 import takenoko.game.board.Board;
@@ -9,8 +8,8 @@ import takenoko.game.tile.Color;
 
 public class HarvestingObjective implements Objective {
     private final EnumMap<Color, Integer> needs;
-    private boolean achieved = false;
     private final int score;
+    private Status status;
 
     public HarvestingObjective(int green, int yellow, int pink, int score) {
         this.needs = new EnumMap<>(Color.class);
@@ -26,14 +25,22 @@ public class HarvestingObjective implements Objective {
 
     public boolean computeAchieved(
             Board ignoredB, Action ignoredA, VisibleInventory visibleInventory) {
-        achieved =
-                Arrays.stream(Color.values())
-                        .allMatch(color -> visibleInventory.getBamboo(color) >= needs.get(color));
-        return achieved;
+        var totalNumberOfBamboosRequired =
+                needs.values().stream().mapToInt(Integer::intValue).sum();
+        status = new Status(totalNumberOfBamboosRequired, totalNumberOfBamboosRequired);
+        for (var color : Color.values()) {
+            var numberOfBamboos = visibleInventory.getBamboo(color);
+            var numberOfBamboosRequired = needs.get(color);
+            if (numberOfBamboos < numberOfBamboosRequired) {
+                status.completed -= numberOfBamboosRequired - numberOfBamboos;
+            }
+        }
+        return status.achieved();
     }
 
-    public boolean isAchieved() {
-        return achieved;
+    @Override
+    public Status status() {
+        return status;
     }
 
     @Override

@@ -99,7 +99,7 @@ public class ActionValidator {
     }
 
     private boolean isValid(Action.UnveilObjective action) {
-        if (!action.objective().isAchieved()) return false;
+        if (!action.objective().status().achieved()) return false;
 
         if (action.objective() instanceof HarvestingObjective needs) {
             return playerVisibleInventory.getBamboo(Color.GREEN) >= needs.getGreen()

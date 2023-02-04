@@ -91,7 +91,7 @@ class BambooSizeObjectiveTest {
         bt2_1.growBamboo();
 
         assertTrue(b1.computeAchieved(board, thirdAction, null));
-        assertTrue(b1.isAchieved());
+        assertTrue(b1.status().achieved());
 
         // Verification of the 2nd objective
         var fourthAction = placeBambooTile(board, new Coord(1, 1), Color.YELLOW);
@@ -133,7 +133,7 @@ class BambooSizeObjectiveTest {
         bt5_1.growBamboo();
 
         assertTrue(b2.computeAchieved(board, sixthAction, null));
-        assertTrue(b2.isAchieved());
+        assertTrue(b2.status().achieved());
 
         // Verification of the 3rd objective
         var seventhAction = placeBambooTile(board, new Coord(2, 1), Color.GREEN);
@@ -154,7 +154,7 @@ class BambooSizeObjectiveTest {
         bt6_1.growBamboo();
 
         assertTrue(b3.computeAchieved(board, seventhAction, null));
-        assertTrue(b3.isAchieved());
+        assertTrue(b3.status().achieved());
     }
 
     @Test
