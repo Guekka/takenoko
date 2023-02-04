@@ -7,7 +7,7 @@ import takenoko.game.board.VisibleInventory;
 import takenoko.game.tile.*;
 
 public class BambooSizeObjective implements Objective {
-
+    
     private final int numberOfBamboos;
     private final int sizeObjective;
     private final Color color;
@@ -17,7 +17,7 @@ public class BambooSizeObjective implements Objective {
     private final PowerUpNecessity powerUpNecessity;
     private final PowerUp powerUp;
     private Status status;
-
+    
     public BambooSizeObjective(
             int nbOfBamboos,
             int size,
@@ -26,14 +26,14 @@ public class BambooSizeObjective implements Objective {
             PowerUpNecessity powerUpNecessity,
             PowerUp powerUp)
             throws BambooSizeException {
-
+        
         if (nbOfBamboos < 1 || nbOfBamboos > 4) {
             throw new BambooSizeException("Error : unreachable number of bamboos.");
         }
         if (size < 1 || size > 4) {
             throw new BambooSizeException("Error : unreachable bamboo size.");
         }
-
+        
         this.numberOfBamboos = nbOfBamboos;
         this.sizeObjective = size;
         this.color = c;
@@ -41,16 +41,16 @@ public class BambooSizeObjective implements Objective {
         this.powerUpNecessity = powerUpNecessity;
         this.powerUp = powerUp;
     }
-
+    
     public BambooSizeObjective(int nbOfBamboos, int size, Color c) throws BambooSizeException {
         this(nbOfBamboos, size, c, 1, PowerUpNecessity.NO_MATTER, PowerUp.NONE);
     }
-
+    
     public BambooSizeObjective(int nbOfBamboos, int size, Color c, int score)
             throws BambooSizeException {
         this(nbOfBamboos, size, c, score, PowerUpNecessity.NO_MATTER, PowerUp.NONE);
     }
-
+    
     @Override
     public boolean computeAchieved(Board board, Action lastAction, VisibleInventory ignored) {
         status = new Status(0, numberOfBamboos + 1); // +1 because of powerUpCondition
@@ -62,8 +62,8 @@ public class BambooSizeObjective implements Objective {
                 throw new IllegalStateException();
             }
             if (tile instanceof BambooTile bambooTile
-                    && bambooTile.getBambooSize() == sizeObjective
-                    && bambooTile.getColor() == color) {
+                        && bambooTile.getBambooSize() == sizeObjective
+                        && bambooTile.getColor() == color) {
                 status.completed++;
                 status.completed +=
                         switch (this.powerUpNecessity) {
@@ -78,12 +78,12 @@ public class BambooSizeObjective implements Objective {
         }
         return status.achieved();
     }
-
+    
     @Override
     public Status status() {
         return status;
     }
-
+    
     @Override
     public int getScore() {
         return score;
