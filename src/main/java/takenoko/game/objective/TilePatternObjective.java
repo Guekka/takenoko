@@ -227,6 +227,20 @@ public class TilePatternObjective implements Objective {
         this(Collections.nCopies(pattern.size(), color), pattern, 1);
     }
 
+    public TilePatternObjective(TilePatternObjective other) {
+        this.patternVariations = new HashSet<>();
+        for (var pat : other.patternVariations) {
+            // Deep copy
+            var newPat = new ArrayList<Element>();
+            for (var el : pat) {
+                newPat.add(new Element(el.color, el.coord));
+            }
+            this.patternVariations.add(newPat);
+        }
+        this.status = new Status(other.status);
+        this.score = other.score;
+    }
+
     /// Generate all possible rotations of a pattern
     private List<List<Element>> generateRotations(List<Element> pattern) {
         var all_rotations = new ArrayList<List<Element>>();
@@ -309,5 +323,16 @@ public class TilePatternObjective implements Objective {
                         .filter(el -> isValidTile(board, el))
                         .count();
         return new Status((int) matchCount, pattern.size());
+    }
+
+    public boolean computeCanBeUsedToAchieve(Board board, Action.PlaceTile placeTile) {
+        var coord = placeTile.coord();
+        var selfCopy = new TilePatternObjective(this);
+        status =
+                selfCopy.patternVariations.stream()
+                        .map(pattern -> isPatternAt(board, coord, pattern))
+                        .max(Comparator.comparingDouble(Status::progressFraction))
+                        .orElseThrow();
+        return status.progressFraction() > this.status.progressFraction();
     }
 }

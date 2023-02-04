@@ -14,6 +14,11 @@ public interface Objective {
             this.totalToComplete = totalToComplete;
         }
 
+        public Status(Status other) {
+            this.completed = other.completed;
+            this.totalToComplete = other.totalToComplete;
+        }
+
         public boolean achieved() {
             return completed >= totalToComplete;
         }
