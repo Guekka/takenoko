@@ -7,16 +7,15 @@ import takenoko.game.board.VisibleInventory;
 import takenoko.game.tile.*;
 
 public class BambooSizeObjective implements Objective {
-
     private final int numberOfBamboos;
     private final int sizeObjective;
     private final Color color;
     private final int score;
-    // MANDATORY if the objective need a PowerUp to be completed,
-    // FORBIDDEN if PowerUps are forbidden, else NO_MATTER.
-    private final PowerUpNecessity powerUpNecessity;
-    private final PowerUp powerUp;
     private Status status;
+    private final PowerUpNecessity
+            powerUpNecessity; // MANDATORY if the objective need a PowerUp to be completed,
+    // FORBIDDEN if PowerUps are forbidden, else NO_MATTER.
+    private final PowerUp powerUp;
 
     public BambooSizeObjective(
             int nbOfBamboos,
@@ -40,6 +39,7 @@ public class BambooSizeObjective implements Objective {
         this.score = score;
         this.powerUpNecessity = powerUpNecessity;
         this.powerUp = powerUp;
+        resetStatus(0);
     }
 
     public BambooSizeObjective(int nbOfBamboos, int size, Color c) throws BambooSizeException {
@@ -51,9 +51,18 @@ public class BambooSizeObjective implements Objective {
         this(nbOfBamboos, size, c, score, PowerUpNecessity.NO_MATTER, PowerUp.NONE);
     }
 
+    Status resetStatus(int completion) {
+        status =
+                new Status(
+                        completion,
+                        numberOfBamboos + (powerUpNecessity == PowerUpNecessity.NO_MATTER ? 0 : 1));
+        return status;
+    }
+
     @Override
-    public boolean computeAchieved(Board board, Action lastAction, VisibleInventory ignored) {
-        status = new Status(0, numberOfBamboos + 1); // +1 because of powerUpCondition
+    public Status computeAchieved(Board board, Action lastAction, VisibleInventory ignored) {
+        resetStatus(0);
+        int completed = 0;
         for (var coord : board.getPlacedCoords()) {
             Tile tile;
             try {
@@ -64,19 +73,17 @@ public class BambooSizeObjective implements Objective {
             if (tile instanceof BambooTile bambooTile
                     && bambooTile.getBambooSize() == sizeObjective
                     && bambooTile.getColor() == color) {
-                status.completed++;
-                status.completed +=
+                completed++;
+                completed +=
                         switch (this.powerUpNecessity) {
                             case FORBIDDEN -> bambooTile.getPowerUp().equals(PowerUp.NONE) ? 1 : 0;
                             case MANDATORY -> bambooTile.getPowerUp().equals(this.powerUp) ? 1 : 0;
-                            case NO_MATTER -> 1;
+                            case NO_MATTER -> 0;
                         };
             }
         }
-        if (status.achieved()) {
-            status.completed = status.totalToComplete; // prevent >100% progress
-        }
-        return status.achieved();
+        // prevent >100% progress
+        return resetStatus(Math.min(completed, status.totalToComplete()));
     }
 
     @Override

@@ -12,158 +12,156 @@ import takenoko.utils.Coord;
 
 // spotless:off (spotless destroys the ascii art)
 /** This class works by storing a list of deltas from one edge of the pattern.
-For example, if the pattern is a 2x2 square, the deltas are:
-(0, 0), (0, 1), (1, 0), (1, 1)
-The pattern is then rotated to find all possible patterns.
-This way, we can check if a pattern is achieved by only checking starting from the last tile
-placed.
-# Algorithm
-The important part is the generation of the pattern variations.
-Let's use an example. Black hexagons are the tiles we want to match, white hexagons are the others
-The `DIAMOND_WITHOUT_RIGHT_PART`, which is :
+ For example, if the pattern is a 2x2 square, the deltas are:
+ (0, 0), (0, 1), (1, 0), (1, 1)
+ The pattern is then rotated to find all possible patterns.
+ This way, we can check if a pattern is achieved by only checking starting from the last tile
+ placed.
+ # Algorithm
+ The important part is the generation of the pattern variations.
+ Let's use an example. Black hexagons are the tiles we want to match, white hexagons are the others
+ The `DIAMOND_WITHOUT_RIGHT_PART`, which is :
  ```raw
-  _____         _____         _____
+ _____         _____         _____
  /     \       /     \       /     \
-/ -2,0  \_____/  ===  \_____/  2,0  \
-\       /     \       /     \       /
+ / -2,0  \_____/  ===  \_____/  2,0  \
+ \       /     \       /     \       /
  \_____/  ===  \_____/  1,1  \_____/
  /     \       /     \       /     \
-/ -2,1  \_____/  0,1  \_____/  2,1  \
-\       /     \       /     \       /
+ / -2,1  \_____/  0,1  \_____/  2,1  \
+ \       /     \       /     \       /
  \_____/  ===  \_____/  1,2  \_____/
  /     \       /     \       /     \
-/ -2,2  \_____/  0,2  \_____/  2,2  \
-\       /     \       /     \       /
+ / -2,2  \_____/  0,2  \_____/  2,2  \
+ \       /     \       /     \       /
  \_____/       \_____/       \_____/
-```
-The deltas are:
-```
-(0, 0), (-1, 1), (-1, 2)
-```
+ ```
+ The deltas are:
+ ```
+ (0, 0), (-1, 1), (-1, 2)
+ ```
  The first step is to find all possible rotations of the pattern
  Rotation 1:
-```raw
-  _____         _____         _____
+ ```raw
+ _____         _____         _____
  /     \       /     \       /     \
-/ -2,0  \_____/  ===  \_____/  2,0  \
-\       /     \       /     \       /
+ / -2,0  \_____/  ===  \_____/  2,0  \
+ \       /     \       /     \       /
  \_____/ -1,1  \_____/  1,1  \_____/
  /     \       /     \       /     \
-/ -2,1  \_____/  ===  \_____/  2,1  \
-\       /     \       /     \       /
+ / -2,1  \_____/  ===  \_____/  2,1  \
+ \       /     \       /     \       /
  \_____/ -1,2  \_____/  ===  \_____/
  /     \       /     \       /     \
-/ -2,2  \_____/  0,2  \_____/  2,2  \
-\       /     \       /     \       /
+ / -2,2  \_____/  0,2  \_____/  2,2  \
+ \       /     \       /     \       /
  \_____/       \_____/       \_____/
-``` Rotation 2:
-```raw
-  _____         _____         _____
+ ``` Rotation 2:
+ ```raw
+ _____         _____         _____
  /     \       /     \       /     \
-/ -2,0  \_____/  ===  \_____/  ===  \
-\       /     \       /     \       /
+ / -2,0  \_____/  ===  \_____/  ===  \
+ \       /     \       /     \       /
  \_____/ -1,1  \_____/  ===  \_____/
  /     \       /     \       /     \
-/ -2,1  \_____/  0,1  \_____/  2,1  \
-\       /     \       /     \       /
+ / -2,1  \_____/  0,1  \_____/  2,1  \
+ \       /     \       /     \       /
  \_____/ -1,2  \_____/  1,2  \_____/
  /     \       /     \       /     \
-/ -2,2  \_____/  0,2  \_____/  2,2  \
-\       /     \       /     \       /
+ / -2,2  \_____/  0,2  \_____/  2,2  \
+ \       /     \       /     \       /
  \_____/       \_____/       \_____/
-``` Rotation 3:
-```raw
-         _____         _____
-        /     \       /     \
-  _____/ -1,-2 \_____/  1,-2 \_____
+ ``` Rotation 3:
+ ```raw
+ _____         _____
+ /     \       /     \
+ _____/ -1,-2 \_____/  1,-2 \_____
  /     \       /     \       /     \
-/ -2,-2 \_____/  0,-2 \_____/  2,-2 \
-\       /     \       /     \       /
+ / -2,-2 \_____/  0,-2 \_____/  2,-2 \
+ \       /     \       /     \       /
  \_____/ -1,-1 \_____/  ===  \_____/
  /     \       /     \       /     \
-/ -2,-1 \_____/  0,-1 \_____/  2,-1 \
-\       /     \       /     \       /
+ / -2,-1 \_____/  0,-1 \_____/  2,-1 \
+ \       /     \       /     \       /
  \_____/ -1,0  \_____/  ===  \_____/
  /     \       /     \       /     \
-/ -2,0  \_____/  ===  \_____/  2,0  \
-\       /     \       /     \       /
+ / -2,0  \_____/  ===  \_____/  2,0  \
+ \       /     \       /     \       /
  \_____/ -1,1  \_____/  1,1  \_____/
  /     \       /     \       /     \
-/ -2,1  \_____/  0,1  \_____/  2,1  \
-\       /     \       /     \       /
+ / -2,1  \_____/  0,1  \_____/  2,1  \
+ \       /     \       /     \       /
  \_____/       \_____/       \_____/
-``` Rotation 4:
-```raw
-         _____         _____
-        /     \       /     \
-  _____/ -1,-2 \_____/  1,-2 \_____
+ ``` Rotation 4:
+ ```raw
+ _____         _____
+ /     \       /     \
+ _____/ -1,-2 \_____/  1,-2 \_____
  /     \       /     \       /     \
-/ -2,-2 \_____/  0,-2 \_____/  2,-2 \
-\       /     \       /     \       /
+ / -2,-2 \_____/  0,-2 \_____/  2,-2 \
+ \       /     \       /     \       /
  \_____/  ===  \_____/  1,-1 \_____/
  /     \       /     \       /     \
-/ -2,-1 \_____/  ===  \_____/  2,-1 \
-\       /     \       /     \       /
+ / -2,-1 \_____/  ===  \_____/  2,-1 \
+ \       /     \       /     \       /
  \_____/ -1,0  \_____/  1,0  \_____/
  /     \       /     \       /     \
-/ -2,0  \_____/  ===  \_____/  2,0  \
-\       /     \       /     \       /
+ / -2,0  \_____/  ===  \_____/  2,0  \
+ \       /     \       /     \       /
  \_____/ -1,1  \_____/  1,1  \_____/
  /     \       /     \       /     \
-/ -2,1  \_____/  0,1  \_____/  2,1  \
-\       /     \       /     \       /
+ / -2,1  \_____/  0,1  \_____/  2,1  \
+ \       /     \       /     \       /
  \_____/       \_____/       \_____/
-``` Rotation 5:
-```raw
-         _____         _____
-        /     \       /     \
-  _____/ -1,-2 \_____/  1,-2 \_____
+ ``` Rotation 5:
+ ```raw
+ _____         _____
+ /     \       /     \
+ _____/ -1,-2 \_____/  1,-2 \_____
  /     \       /     \       /     \
-/ -2,-2 \_____/  0,-2 \_____/  2,-2 \
-\       /     \       /     \       /
+ / -2,-2 \_____/  0,-2 \_____/  2,-2 \
+ \       /     \       /     \       /
  \_____/ -1,-1 \_____/  1,-1 \_____/
  /     \       /     \       /     \
-/ -2,-1 \_____/  0,-1 \_____/  2,-1 \
-\       /     \       /     \       /
+ / -2,-1 \_____/  0,-1 \_____/  2,-1 \
+ \       /     \       /     \       /
  \_____/  ===  \_____/  1,0  \_____/
  /     \       /     \       /     \
-/  ===  \_____/  ===  \_____/  2,0  \
-\       /     \       /     \       /
+ /  ===  \_____/  ===  \_____/  2,0  \
+ \       /     \       /     \       /
  \_____/ -1,1  \_____/  1,1  \_____/
  /     \       /     \       /     \
-/ -2,1  \_____/  0,1  \_____/  2,1  \
-\       /     \       /     \       /
+ / -2,1  \_____/  0,1  \_____/  2,1  \
+ \       /     \       /     \       /
  \_____/       \_____/       \_____/
  ```
-There we go for the rotations... or do we?
-This is not enough! We need to do the rotations, starting from the second tile too!
+ There we go for the rotations... or do we?
+ This is not enough! We need to do the rotations, starting from the second tile too!
  For example, Rotation 1.1
-```raw
-  _____         _____         _____
+ ```raw
+ _____         _____         _____
  /     \       /     \       /     \
-/ -2,0  \_____/  ===  \_____/  2,0  \
-\       /     \       /     \       /
+ / -2,0  \_____/  ===  \_____/  2,0  \
+ \       /     \       /     \       /
  \_____/ -1,1  \_____/  1,1  \_____/
  /     \       /     \       /     \
-/ -2,1  \_____/  ===  \_____/  2,1  \
-\       /     \       /     \       /
+ / -2,1  \_____/  ===  \_____/  2,1  \
+ \       /     \       /     \       /
  \_____/  ===  \_____/  ---  \_____/
  /     \       /     \       /     \
-/ -2,2  \_____/  0,2  \_____/  2,2  \
-\       /     \       /     \       /
+ / -2,2  \_____/  0,2  \_____/  2,2  \
+ \       /     \       /     \       /
  \_____/       \_____/       \_____/
  ```
-The "---" represents the original tile, and the "===" represents the new one.
-As we can see, the second tile has moved independently from the first one
-Fortunately, we do not have to generate more rotations. If we look more closely, we can see that Rotation 1.1 is
-the same as Rotation 3, with a translation. Translations are handled easily thanks to our use of offsets.
-
+ The "---" represents the original tile, and the "===" represents the new one.
+ As we can see, the second tile has moved independently from the first one
+ Fortunately, we do not have to generate more rotations. If we look more closely, we can see that Rotation 1.1 is
+ the same as Rotation 3, with a translation. Translations are handled easily thanks to our use of offsets.
  Generation of the rotations is done by `generateRotations`
-
-However, we're not done yet. The algorithm has to be able to start from any tile, and not only from the first one.
-So this means we have to use each tile in the pattern as the starting point for the algorithm.
-This is handled by `generateShifts`
-**/
+ However, we're not done yet. The algorithm has to be able to start from any tile, and not only from the first one.
+ So this means we have to use each tile in the pattern as the starting point for the algorithm.
+ This is handled by `generateShifts`
+ **/
 // spotless:on
 public class TilePatternObjective implements Objective {
     private record Element(Color color, Coord coord) {
@@ -214,8 +212,7 @@ public class TilePatternObjective implements Objective {
                         // remove potential duplicates
                         .collect(Collectors.toSet());
         this.score = score;
-
-        this.status = new Status(0, patternVariations.stream().findAny().orElseThrow().size());
+        resetStatus(0);
     }
 
     /// alternative constructor for a pattern with only one color
@@ -227,18 +224,9 @@ public class TilePatternObjective implements Objective {
         this(Collections.nCopies(pattern.size(), color), pattern, 1);
     }
 
-    public TilePatternObjective(TilePatternObjective other) {
-        this.patternVariations = new HashSet<>();
-        for (var pat : other.patternVariations) {
-            // Deep copy
-            var newPat = new ArrayList<Element>();
-            for (var el : pat) {
-                newPat.add(new Element(el.color, el.coord));
-            }
-            this.patternVariations.add(newPat);
-        }
-        this.status = new Status(other.status);
-        this.score = other.score;
+    private void resetStatus(int completion) {
+        var patternSize = patternVariations.stream().findAny().orElseThrow().size();
+        status = new Status(completion, patternSize);
     }
 
     /// Generate all possible rotations of a pattern
@@ -273,24 +261,23 @@ public class TilePatternObjective implements Objective {
     }
 
     @Override
-    public boolean computeAchieved(Board board, Action lastAction, VisibleInventory ignored) {
+    public Status computeAchieved(Board board, Action lastAction, VisibleInventory ignored) {
         // Once the objective is achieved, it stays achieved
         if (status.achieved()) {
-            return true;
+            return status;
         }
         // We know the status can only change if the last action was a tile placement
         if (!(lastAction instanceof Action.PlaceTile placeTile)) {
-            return false;
+            return status;
         }
         // Test all possible patterns
         var coord = placeTile.coord();
-
         status =
                 patternVariations.stream()
                         .map(pattern -> isPatternAt(board, coord, pattern))
                         .max(Comparator.comparingDouble(Status::progressFraction))
                         .orElseThrow();
-        return status.achieved();
+        return status;
     }
 
     @Override
@@ -323,16 +310,5 @@ public class TilePatternObjective implements Objective {
                         .filter(el -> isValidTile(board, el))
                         .count();
         return new Status((int) matchCount, pattern.size());
-    }
-
-    public boolean computeCanBeUsedToAchieve(Board board, Action.PlaceTile placeTile) {
-        var coord = placeTile.coord();
-        var selfCopy = new TilePatternObjective(this);
-        status =
-                selfCopy.patternVariations.stream()
-                        .map(pattern -> isPatternAt(board, coord, pattern))
-                        .max(Comparator.comparingDouble(Status::progressFraction))
-                        .orElseThrow();
-        return status.progressFraction() > this.status.progressFraction();
     }
 }

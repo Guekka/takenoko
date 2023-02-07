@@ -18,7 +18,7 @@ public class Main {
                         new RuleBasedBot(new Random(), Strategies.PLOT_RUSH));
         var tileDeck = new TileDeck(new Random());
         var logger = Logger.getGlobal();
-        var game = new Game(players, logger, tileDeck);
+        var game = new Game(players, logger, tileDeck, new Random());
         var winner = game.play();
 
         if (winner.isPresent()) {

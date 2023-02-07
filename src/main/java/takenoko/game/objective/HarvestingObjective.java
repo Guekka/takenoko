@@ -17,25 +17,32 @@ public class HarvestingObjective implements Objective {
         this.needs.put(Color.YELLOW, yellow);
         this.needs.put(Color.PINK, pink);
         this.score = score;
+        resetStatus(0);
     }
 
     public HarvestingObjective(int green, int yellow, int pink) {
         this(green, yellow, pink, 1);
     }
 
-    public boolean computeAchieved(
-            Board ignoredB, Action ignoredA, VisibleInventory visibleInventory) {
+    private Status resetStatus(int completion) {
         var totalNumberOfBamboosRequired =
                 needs.values().stream().mapToInt(Integer::intValue).sum();
-        status = new Status(totalNumberOfBamboosRequired, totalNumberOfBamboosRequired);
+        status = new Status(completion, totalNumberOfBamboosRequired);
+        return status;
+    }
+
+    public Status computeAchieved(
+            Board ignoredB, Action ignoredA, VisibleInventory visibleInventory) {
+        resetStatus(0);
+        var toComplete = status.totalToComplete();
         for (var color : Color.values()) {
             var numberOfBamboos = visibleInventory.getBamboo(color);
             var numberOfBamboosRequired = needs.get(color);
             if (numberOfBamboos < numberOfBamboosRequired) {
-                status.completed -= numberOfBamboosRequired - numberOfBamboos;
+                toComplete -= numberOfBamboosRequired - numberOfBamboos;
             }
         }
-        return status.achieved();
+        return resetStatus(toComplete);
     }
 
     @Override

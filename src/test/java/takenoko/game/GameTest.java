@@ -5,20 +5,19 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import takenoko.action.Action;
 import takenoko.game.board.VisibleInventory;
+import takenoko.game.objective.Objective;
 import takenoko.game.tile.TileDeck;
 import takenoko.player.InventoryException;
 import takenoko.player.Player;
 import takenoko.player.PlayerException;
+import takenoko.player.PrivateInventory;
 import takenoko.player.bot.RandomBot;
 import utils.TestLogHandler;
 
@@ -51,19 +50,31 @@ class GameTest {
     void testGetWinner() throws PlayerException {
         var p1 = mock(Player.class);
         when(p1.getVisibleInventory()).thenReturn(new VisibleInventory());
+        when(p1.getPrivateInventory()).thenReturn(new PrivateInventory());
         when(p1.getScore()).thenReturn(1);
         when(p1.chooseAction(any(), any())).thenReturn(Action.END_TURN);
 
         var p2 = mock(Player.class);
         when(p2.getVisibleInventory()).thenReturn(new VisibleInventory());
+        when(p2.getPrivateInventory()).thenReturn(new PrivateInventory());
         when(p2.getScore()).thenReturn(2);
         when(p2.chooseAction(any(), any())).thenReturn(Action.END_TURN);
 
         var players = List.of(p1, p2);
-        var game = new Game(players, logger, tileDeck);
+        var game = new Game(players, logger, tileDeck, new Random(0));
 
-        assertEquals(Optional.of(p2), game.play());
+        assertEquals(Optional.empty(), game.play());
         assertNoSevereLog();
+    }
+
+    @Test
+    void testInitialDrawAtStart() {
+        var p1 = new RandomBot(new Random(0));
+        var p2 = new RandomBot(new Random(0));
+
+        var game = new Game(List.of(p1, p2), logger, tileDeck, new Random(0));
+
+        assertEquals(3, p1.getPrivateInventory().getObjectives().size());
     }
 
     @Test
@@ -74,9 +85,40 @@ class GameTest {
         for (int i = 0; i < 10; i++) {
             List<Player> players =
                     List.of(new RandomBot(new Random()), new RandomBot(new Random()));
-            var game = new Game(players, logger, tileDeck);
+            var game = new Game(players, logger, tileDeck, new Random());
             game.play();
             assertNoSevereLog();
         }
+    }
+
+    @Test
+    void testEndOfGame() {
+        Random r = new Random(0);
+        Player p1 = mock(Player.class);
+        Player p2 = new RandomBot(new Random());
+        VisibleInventory vi = mock(VisibleInventory.class);
+        List<Objective> li = mock(ArrayList.class);
+        when(p1.getVisibleInventory()).thenReturn(vi);
+        when(p1.getPrivateInventory()).thenReturn(new PrivateInventory());
+        when(vi.getFinishedObjectives()).thenReturn(li);
+        when(li.size()).thenReturn(9);
+
+        var players = List.of(p1, p2);
+        var game = new Game(players, logger, tileDeck, r);
+        assertTrue(game.endOfGame());
+
+        Player p3 = new RandomBot(new Random());
+        players = List.of(p1, p2, p3);
+        game = new Game(players, logger, tileDeck, r);
+        assertFalse(game.endOfGame());
+        when(li.size()).thenReturn(8);
+        assertTrue(game.endOfGame());
+
+        Player p4 = new RandomBot(new Random());
+        players = List.of(p1, p2, p3, p4);
+        game = new Game(players, logger, tileDeck, r);
+        assertFalse(game.endOfGame());
+        when(li.size()).thenReturn(7);
+        assertTrue(game.endOfGame());
     }
 }

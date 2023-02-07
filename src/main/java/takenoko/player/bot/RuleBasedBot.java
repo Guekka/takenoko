@@ -87,11 +87,6 @@ public class RuleBasedBot extends PlayerBase<RuleBasedBot>
         }
 
         // And get the first coordinate where placing a tile would be beneficial
-        for (TilePatternObjective objective : unfinishedObjectives)
-            for (var action : possibleActions)
-                if (action instanceof Action.PlaceTile actionPlaceTile
-                        && objective.computeCanBeUsedToAchieve(board, actionPlaceTile))
-                    return action;
 
         // else, just place a tile
         for (var action : possibleActions) {

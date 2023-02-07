@@ -1,6 +1,6 @@
 package takenoko.action;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import java.util.Random;
@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import takenoko.game.GameInventory;
 import takenoko.game.board.Board;
 import takenoko.game.board.BoardException;
+import takenoko.game.board.MovablePiece;
 import takenoko.game.board.VisibleInventory;
 import takenoko.game.tile.*;
 import takenoko.player.PrivateInventory;
@@ -25,7 +26,7 @@ class PossibleActionListerTest {
     void setUp() {
         board = new Board();
         deck = new TileDeck(new Random(0));
-        GameInventory gameInventory = new GameInventory(20, deck);
+        GameInventory gameInventory = new GameInventory(20, deck, new Random(0));
         privateInventory = new PrivateInventory();
         visibleInventory = new VisibleInventory();
         validator = new ActionValidator(board, gameInventory, privateInventory, visibleInventory);
@@ -85,8 +86,8 @@ class PossibleActionListerTest {
                         new Action.PickPowerUp(PowerUp.ENCLOSURE),
                         new Action.PickPowerUp(PowerUp.FERTILIZER),
                         new Action.PickPowerUp(PowerUp.WATERSHED),
-                        new Action.MoveGardener(new Coord(0, 1)),
-                        new Action.MovePanda(new Coord(0, 1)),
+                        new Action.MovePiece(MovablePiece.GARDENER, new Coord(0, 1)),
+                        new Action.MovePiece(MovablePiece.PANDA, new Coord(0, 1)),
                         new Action.TakeIrrigationStick(),
                         new Action.PlaceIrrigationStick(new Coord(0, 1), TileSide.UP_RIGHT),
                         new Action.PlaceIrrigationStick(new Coord(0, 1), TileSide.DOWN_RIGHT),

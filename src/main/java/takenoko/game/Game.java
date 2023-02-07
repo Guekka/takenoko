@@ -1,14 +1,17 @@
 package takenoko.game;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import takenoko.action.Action;
-import takenoko.action.ActionApplier;
-import takenoko.action.ActionValidator;
-import takenoko.action.PossibleActionLister;
+import takenoko.action.*;
 import takenoko.game.board.Board;
+import takenoko.game.board.VisibleInventory;
+import takenoko.game.tile.EmptyDeckException;
 import takenoko.game.tile.TileDeck;
+import takenoko.player.InventoryException;
 import takenoko.player.Player;
 import takenoko.player.PlayerException;
 
@@ -19,19 +22,39 @@ public class Game {
     private final Logger out;
     private int numTurn = 1;
     private final GameInventory inventory;
+    private final UndoStack state;
 
-    public Game(List<Player> players, Logger out, TileDeck tileDeck) {
+    public Game(List<Player> players, Logger out, TileDeck tileDeck, Random random) {
         board = new Board(players);
         this.players = players;
         this.out = out;
-        inventory = new GameInventory(20, tileDeck);
+        inventory = new GameInventory(20, tileDeck, random);
+        this.state = new UndoStack();
+        try {
+            for (Player player : players) {
+                player.getPrivateInventory()
+                        .addObjective(inventory.getTilePatternObjectiveDeck().draw());
+                player.getPrivateInventory()
+                        .addObjective(inventory.getBambooSizeObjectiveDeck().draw());
+                player.getPrivateInventory()
+                        .addObjective(inventory.getHarvestingObjectiveDeck().draw());
+            }
+        } catch (EmptyDeckException | InventoryException e) {
+            out.log(Level.SEVERE, "Error while initializing the game", e);
+        }
     }
 
     public Optional<Player> play() {
         this.out.log(Level.INFO, "Beginning of the game!");
+        // Ideally, we should replace this with a while true, but we can't actually due to the level
+        // of our bots.
         while (numTurn < 200) {
             this.out.log(Level.INFO, "Beginning of the tour number " + numTurn + "!");
             playTurn();
+            if (endOfGame()) {
+                playTurn(); // we need to play a last turn before ending
+                break;
+            }
             numTurn++;
         }
         return getWinner();
@@ -44,7 +67,7 @@ public class Game {
                 winner = Optional.of(player);
             }
         }
-        return winner;
+        return Optional.empty();
     }
 
     private void playTurn() {
@@ -61,9 +84,8 @@ public class Game {
                     var action = player.chooseAction(board, actionLister);
                     this.out.log(Level.INFO, "Action: {0}", action);
                     if (action == Action.END_TURN) break;
-                    var applier =
-                            new ActionApplier(board, out, inventory, player.getPrivateInventory());
-                    applier.apply(action, player);
+                    var applier = new ActionApplier(board, out, inventory, player);
+                    applier.apply(state, action);
                     alreadyPlayedActions.add(action);
                     checkObjectives(action);
                 } catch (PlayerException e) {
@@ -100,9 +122,33 @@ public class Game {
     private void displayInventories() {
         int numPlayer = 1;
         for (Player p : players) {
+            VisibleInventory vi = p.getVisibleInventory();
             this.out.log(Level.INFO, "Player number {0} informations :", numPlayer);
-            this.out.log(Level.INFO, "Score : {0}", board.getPlayerScore(p));
+            this.out.log(Level.INFO, "Score : {0}", p.getScore());
+            this.out.log(
+                    Level.INFO,
+                    "Number of objectives achieved : {0}",
+                    vi.getFinishedObjectives().size());
             numPlayer++;
         }
+    }
+
+    public boolean endOfGame() {
+        int objectivesToUnveil =
+                switch (players.size()) {
+                    case 2 -> 9;
+                    case 3 -> 8;
+                    case 4 -> 7;
+                    default -> throw new IllegalStateException(
+                            "Unexpected value: " + players.size());
+                };
+        for (Player p : players) {
+            VisibleInventory vi = p.getVisibleInventory();
+            if (objectivesToUnveil == vi.getFinishedObjectives().size()) {
+                p.increaseScore(2);
+                return true;
+            }
+        }
+        return false;
     }
 }
