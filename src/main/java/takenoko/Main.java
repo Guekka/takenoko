@@ -6,16 +6,12 @@ import java.util.logging.Logger;
 import takenoko.game.Game;
 import takenoko.game.tile.TileDeck;
 import takenoko.player.Player;
+import takenoko.player.bot.PlotRushBot;
 import takenoko.player.bot.RandomBot;
-import takenoko.player.bot.RuleBasedBot;
-import takenoko.player.bot.strategies.Strategies;
 
 public class Main {
     public static void main(String... args) {
-        List<Player> players =
-                List.of(
-                        new RandomBot(new Random()),
-                        new RuleBasedBot(new Random(), Strategies.PLOT_RUSH));
+        List<Player> players = List.of(new RandomBot(new Random()), new PlotRushBot(new Random()));
         var tileDeck = new TileDeck(new Random());
         var logger = Logger.getGlobal();
         var game = new Game(players, logger, tileDeck, new Random());

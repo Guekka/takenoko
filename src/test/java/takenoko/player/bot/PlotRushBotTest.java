@@ -17,10 +17,9 @@ import takenoko.game.objective.Objective;
 import takenoko.game.tile.TileDeck;
 import takenoko.player.InventoryException;
 import takenoko.player.PlayerException;
-import takenoko.player.bot.strategies.Strategies;
 import takenoko.utils.Coord;
 
-class RuleBasedBotTest {
+class PlotRushBotTest {
     Random randomSource;
     @Mock PossibleActionLister actionLister = mock(PossibleActionLister.class);
 
@@ -33,7 +32,7 @@ class RuleBasedBotTest {
     @Test
     void testChooseActions() throws PlayerException {
         Board board = new Board();
-        RuleBasedBot bot = new RuleBasedBot(randomSource, Strategies.PLOT_RUSH);
+        PlotRushBot bot = new PlotRushBot(randomSource);
 
         bot.beginTurn(1);
 
@@ -48,7 +47,7 @@ class RuleBasedBotTest {
     @Test
     void unveilsObjectiveASAP() throws PlayerException, InventoryException {
         Board board = new Board();
-        RuleBasedBot bot = new RuleBasedBot(randomSource);
+        PlotRushBot bot = new PlotRushBot(randomSource);
 
         var objMock = mock(Objective.class);
         when(objMock.status().achieved()).thenReturn(true);
