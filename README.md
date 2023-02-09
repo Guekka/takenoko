@@ -144,6 +144,13 @@ game.
 
 Distributed under the Mozilla Public License Version 2.0. See `LICENSE` for more information.
 
+## Authors
+
+Marc P - [marcpinet](https://github.com/marcpinet)
+Edgar B - [Guekka](https://github.com/Guekka)
+Loïc P - [loicpalayer](https://github.com/loicpalayer)
+Clément R - [ClementR2](https://github.com/ClementR2)
+
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links
 [contributors-shield]: https://img.shields.io/github/contributors/pns-si3-projects/projet2-ps5-22-23-takenoko-2023-a.svg?style=for-the-badge
