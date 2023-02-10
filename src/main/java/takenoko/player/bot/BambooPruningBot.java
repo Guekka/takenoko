@@ -85,9 +85,11 @@ public class BambooPruningBot extends PlayerBase<BambooPruningBot>
         return Utils.randomPick(possibleActions, randomSource).orElse(Action.END_TURN);
     }
 
-    public Optional<Action> simulateBestBambooPruningMove(List<Action> possiblePandaAndGardenerActions) {
+    public Optional<Action> simulateBestBambooPruningMove(
+            List<Action> possiblePandaAndGardenerActions) {
         if (outStatuses.isEmpty() && !possiblePandaAndGardenerActions.isEmpty())
-            return Optional.empty();
+            return Optional.of(
+                    new Action.SimulateActions(possiblePandaAndGardenerActions, outStatuses));
 
         if (!outStatuses.isEmpty()) {
             var actionToObjectiveProgress = getObjectiveProgressFromSimulation(outStatuses);
