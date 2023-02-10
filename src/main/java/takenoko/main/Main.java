@@ -66,14 +66,22 @@ public class Main {
         Simulator simulator1 =
                 new Simulator(
                         1000,
-                        List.of(PlayerType.PLOT_RUSH, PlayerType.SABOTEUR),
+                        List.of(
+                                PlayerType.PLOT_RUSH,
+                                PlayerType.SABOTEUR,
+                                PlayerType.BAMBOO_PRUNING,
+                                PlayerType.RANDOM),
                         logger,
                         Simulator.Parallelism.YES);
 
         Simulator simulator2 =
                 new Simulator(
                         1000,
-                        List.of(PlayerType.PLOT_RUSH, PlayerType.PLOT_RUSH),
+                        List.of(
+                                PlayerType.PLOT_RUSH,
+                                PlayerType.SABOTEUR,
+                                PlayerType.BAMBOO_PRUNING,
+                                PlayerType.RANDOM),
                         logger,
                         Simulator.Parallelism.YES);
 
@@ -91,7 +99,11 @@ public class Main {
         var simulator =
                 new Simulator(
                         300,
-                        List.of(PlayerType.PLOT_RUSH, PlayerType.SABOTEUR, PlayerType.RANDOM),
+                        List.of(
+                                PlayerType.PLOT_RUSH,
+                                PlayerType.BAMBOO_PRUNING,
+                                PlayerType.SABOTEUR,
+                                PlayerType.RANDOM),
                         logger,
                         Simulator.Parallelism.YES);
         Simulator.SimStats stats = simulator.simulate();

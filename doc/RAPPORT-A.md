@@ -54,4 +54,3 @@
 
 * Erreurs à éviter pour nos futurs projets
   Notre plus grosse erreur a été probablement la gestion du bot intelligent, qui a été non seulement bien trop tardive, mais en plus assez mal supervisée. En effet, nous avons découvert un problème lié à ce bot (qui, jusqu'ici, jouait parfaitement son rôle de bot intelligent), et lorsque nous l'avons corrigé il s'est avéré que ce bot s'est mis à perdre toute sa capacité de réflexion, et perdait largement contre un bot aléatoire. Nous avons probablement sous-estimé la complexité de cette tâche, ce qui fut une grosse erreur.
-
